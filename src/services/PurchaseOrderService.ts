@@ -8,6 +8,7 @@ export async function getAllPurchaseOrders(): Promise<PurchaseOrderResource[]> {
   const purchaseOrders = await PurchaseOrder.find().exec();
   const purchaseOrderResources: PurchaseOrderResource[] = purchaseOrders.map(
     (purchaseOrder) => ({
+      id: purchaseOrder.id,
       products: purchaseOrder.products.map((item) => ({
         barcode: item.barcode,
         quantity: item.quantity,

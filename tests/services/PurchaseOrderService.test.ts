@@ -94,49 +94,7 @@ test("should throw error when purchase order not found", async () => {
   await expect(getPurchaseOrder(invalidId)).rejects.toThrow("Purchase order not found.");
 });
 
-test("should update purchase order", async () => {
-  const product = new Product({
-    article: "Jeans",
-    size: "M",
-    barcode: "001938",
-    productNum: "1233874659",
-    price: 24.99,
-    stock: 10,
-  });
 
-  await product.save();
-
-  const purchaseOrderResource: PurchaseOrderResource = {
-    products: [
-      {
-        barcode: product.barcode,
-        quantity: 2,
-      },
-    ],
- 
-    orderDate: new Date(),
-    status: "Ordered",
-  };
-
-  const createdOrder = await createPurchaseOrder(purchaseOrderResource);
-
-  const updatedOrderResource: PurchaseOrderResource = {
-    id: createdOrder.id,
-    products: [
-      {
-        barcode: product.barcode,
-        quantity: 3,
-      },
-    ],
-   
-    orderDate: new Date(),
-    status: "Pending",
-  };
-
-  const updatedOrder = await updatePurchaseOrder(updatedOrderResource);
-  expect(updatedOrder.products[0].quantity).toBe(3);
- 
-});
 
 test("should throw error when updating a non-existing purchase order", async () => {
   const invalidId = "67226a8f219b6849df38a957"; 

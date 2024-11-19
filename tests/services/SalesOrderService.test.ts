@@ -147,7 +147,6 @@ test("successful update of sales order", async () => {
         quantity: 2,
       },
     ],
-   
     saleDate: new Date(),
     source: "store",
   });
@@ -159,19 +158,20 @@ test("successful update of sales order", async () => {
     products: [
       {
         barcode: product.barcode,
-        quantity: 3,
+        quantity: 3, 
         price: product.price,
       },
     ],
-   
     saleDate: new Date(),
     source: "store",
   };
 
+
   const updatedOrder = await updateSalesOrder(updatedOrderResource);
+
   expect(updatedOrder.products[0].quantity).toBe(3);
-  
 });
+
 
 
 test("should throw error when sales order not found", async () => {

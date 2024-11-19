@@ -9,6 +9,7 @@ export async function getAllSalesOrders(): Promise<SalesOrderResource[]> {
 
   const salesResources: SalesOrderResource[] = salesOrders.map(
     (salesOrder) => ({
+      id: salesOrder.id,
       products: salesOrder.products.map((item) => ({
         barcode: item.barcode,
         price: item.price,
@@ -96,23 +97,38 @@ export async function updateSalesOrder(
     logger.error(errorMsg);
     throw new Error(errorMsg);
   }
+
+  // Überprüfen, ob alle Produkte existieren
+  if (salesOrderResource.products) {
+    const barcodes = salesOrderResource.products.map((product) => product.barcode);
+
+    const products = await Product.find({ barcode: { $in: barcodes } });
+
+    if (products.length !== salesOrderResource.products.length) {
+      const missingBarcodes = barcodes.filter(
+        (barcode) => !products.some((product) => product.barcode === barcode)
+      );
+      const errorMsg = `One or more products do not exist. Missing barcodes: ${missingBarcodes.join(", ")}`;
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+  }
+
   const updateObject: {
-    id?: string;
     products?: {
       barcode: string;
       price: number;
       quantity: number;
     }[];
-   
     saleDate?: Date;
     source?: string;
   } = {};
 
   if (salesOrderResource.products) {
-    updateObject.products = salesOrderResource.products.map((item, index) => ({
-      barcode: item.barcode,      
-      price: item.price,      
-      quantity: item.quantity, 
+    updateObject.products = salesOrderResource.products.map((item) => ({
+      barcode: item.barcode,
+      price: item.price,
+      quantity: item.quantity,
     }));
   }
 
@@ -120,8 +136,8 @@ export async function updateSalesOrder(
     updateObject.saleDate = new Date(salesOrderResource.saleDate);
   }
 
+  
   await SalesOrder.updateOne({ _id: salesOrderResource.id }, updateObject);
-
   salesOrder = await SalesOrder.findById(salesOrderResource.id).exec();
   if (!salesOrder) {
     const errorMsg = "Sale order not found.";
@@ -131,14 +147,13 @@ export async function updateSalesOrder(
 
   return {
     id: salesOrder.id,
-    products: salesOrder!.products.map((item) => ({
+    products: salesOrder.products.map((item) => ({
       barcode: item.barcode,
       price: item.price,
       quantity: item.quantity,
     })),
-    
-    saleDate: salesOrder!.saleDate,
-    source: salesOrder!.source,
+    saleDate: salesOrder.saleDate,
+    source: salesOrder.source,
   };
 }
 
