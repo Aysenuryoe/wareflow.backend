@@ -13,11 +13,10 @@ export async function getAllPurchaseOrders(): Promise<PurchaseOrderResource[]> {
         barcode: item.barcode,
         quantity: item.quantity,
       })),
-  
+
       status: purchaseOrder.status,
       orderDate: purchaseOrder.orderDate,
       receivedDate: purchaseOrder.receivedDate,
-     
     })
   );
 
@@ -39,7 +38,7 @@ export async function getPurchaseOrder(
       barcode: item.barcode,
       quantity: item.quantity,
     })),
-   
+
     status: purchaseOrder.status,
     orderDate: purchaseOrder.orderDate,
     receivedDate: purchaseOrder.receivedDate,
@@ -57,8 +56,6 @@ export async function createPurchaseOrder(
     },
   });
 
-
-
   if (existingProducts.length !== purchaseOrderResource.products.length) {
     const errorMsg = "One or more products do not exist.";
     logger.error(errorMsg);
@@ -69,7 +66,7 @@ export async function createPurchaseOrder(
       barcode: item.barcode,
       quantity: item.quantity,
     })),
-    
+
     orderDate: new Date(purchaseOrderResource.orderDate),
     status: purchaseOrderResource.status,
   });
@@ -80,11 +77,10 @@ export async function createPurchaseOrder(
       barcode: item.barcode,
       quantity: item.quantity,
     })),
-   
+
     orderDate: purchaseOrder.orderDate,
     status: purchaseOrder.status,
     receivedDate: purchaseOrder.receivedDate,
-   
   };
 }
 
@@ -107,19 +103,19 @@ export async function updatePurchaseOrder(
       barcode: string;
       quantity: number;
     }[];
-   
+
     orderDate?: Date;
     status?: "Ordered" | "Pending" | "Arrived" | "Cancelled";
     supplier?: string;
   } = {};
 
   if (purchaseOrderResource.products) {
-    updateObject.products = purchaseOrder.products.map((item, index) => ({
-      barcode: item.barcode,            
-      quantity: item.quantity, 
+    updateObject.products = purchaseOrderResource.products.map((product) => ({
+      barcode: product.barcode,
+      quantity: product.quantity,
     }));
   }
- 
+
   if (purchaseOrderResource.orderDate) {
     updateObject.orderDate = new Date(purchaseOrderResource.orderDate);
   }
@@ -140,7 +136,7 @@ export async function updatePurchaseOrder(
       barcode: item.barcode,
       quantity: item.quantity,
     })),
-  
+
     orderDate: purchaseOrder!.orderDate,
     status: purchaseOrder!.status,
     receivedDate: purchaseOrder!.receivedDate,
