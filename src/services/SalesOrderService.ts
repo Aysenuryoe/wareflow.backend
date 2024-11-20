@@ -47,30 +47,12 @@ export async function getSalesOrder(id: string): Promise<SalesOrderResource> {
 export async function createSalesOrder(
   salesOrderResource: SalesOrderResource
 ): Promise<SalesOrderResource> {
-  const existingProducts = await Product.find({
-    barcode: {
-      $in: salesOrderResource.products.map((product) => product.barcode),
-    },
-  }).exec();
-
-  if (existingProducts.length !== salesOrderResource.products.length) {
-    const errorMsg = "One or more products do not exist.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
-  }
-
   const salesOrder = await SalesOrder.create({
-    products: salesOrderResource.products.map((item) => {
-      const product = existingProducts.find(
-        (prod) => prod.barcode === item.barcode
-      );
-      return {
-        barcode: item.barcode,
-        price: product?.price,
-        quantity: item.quantity,
-      };
-    }),
-   
+    products: salesOrderResource.products.map((item) => ({
+      barcode: item.barcode,
+      price: item.price,
+      quantity: item.quantity,
+    })),
     saleDate: salesOrderResource.saleDate,
     source: "store",
   });
@@ -82,7 +64,6 @@ export async function createSalesOrder(
       price: item.price,
       quantity: item.quantity,
     })),
-   
     saleDate: salesOrder.saleDate,
     source: salesOrder.source,
   };

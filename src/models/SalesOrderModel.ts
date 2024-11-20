@@ -16,7 +16,7 @@ const SalesOrderSchema = new Schema<ISalesOrder>(
   {
     products: [
       {
-        barcode: { type: String, required: true, unique: true },
+        barcode: { type: String, required: true},
         price: { type: Number, required: true, min: 1 },
         quantity: { type: Number, required: true, min: 1 },
       },
