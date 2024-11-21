@@ -1,8 +1,8 @@
-import { Types } from "mongoose";
 import { logger } from "../../src/logger";
-import { IProduct, Product } from "../../src/models/ProductModel";
+import { Product } from "../../src/models/ProductModel";
 import { PurchaseOrder } from "../../src/models/PurchaseOrderModel";
 import { PurchaseOrderResource } from "../../src/Resources";
+import { increaseStock } from "./StockService";
 
 export async function getAllPurchaseOrders(): Promise<PurchaseOrderResource[]> {
   const purchaseOrders = await PurchaseOrder.find().exec();
@@ -97,13 +97,17 @@ export async function updatePurchaseOrder(
     throw new Error(errorMsg);
   }
 
+  // Überprüfen, ob sich der Status von "nicht Arrived" zu "Arrived" geändert hat
+  const statusChangedToArrived =
+    purchaseOrderResource.status === "Arrived" &&
+    purchaseOrder.status !== "Arrived";
+
   const updateObject: {
     id?: string;
     products?: {
       barcode: string;
       quantity: number;
     }[];
-
     orderDate?: Date;
     status?: "Ordered" | "Pending" | "Arrived" | "Cancelled";
     supplier?: string;
@@ -128,6 +132,21 @@ export async function updatePurchaseOrder(
     updateObject
   );
 
+  // Erhöhe den Warenbestand, wenn der Status geändert wurde und jetzt "Arrived" ist
+  if (statusChangedToArrived && purchaseOrderResource.products) {
+    for (const product of purchaseOrderResource.products) {
+      try {
+        await increaseStock(product.barcode, product.quantity);
+      } catch (error) {
+        const errorMsg = `Failed to increase stock for product with barcode ${
+          product.barcode
+        }: ${error instanceof Error ? error.message : "Unknown error"}`;
+        logger.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+    }
+  }
+
   purchaseOrder = await PurchaseOrder.findById(purchaseOrderResource.id).exec();
 
   return {
@@ -136,7 +155,6 @@ export async function updatePurchaseOrder(
       barcode: item.barcode,
       quantity: item.quantity,
     })),
-
     orderDate: purchaseOrder!.orderDate,
     status: purchaseOrder!.status,
     receivedDate: purchaseOrder!.receivedDate,

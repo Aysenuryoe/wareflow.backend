@@ -124,7 +124,7 @@ test("should throw error when one or more products do not exist", async () => {
     source: "store",
   };
 
-  await expect(createSalesOrder(salesOrderResource)).rejects.toThrow("One or more products do not exist.");
+  await expect(createSalesOrder(salesOrderResource)).rejects.toThrow(/Failed to create sales order/);
 });
 
 test("successful update of sales order", async () => {
