@@ -106,7 +106,7 @@ salesRouter.put(
         if (!product.barcode || typeof product.barcode !== "string") {
           throw new Error("Each product must have a valid barcode.");
         }
-        if (!Number.isInteger(product.quantity) || product.quantity <= 1) {
+        if (!Number.isInteger(product.quantity) || product.quantity < 1) {
           throw new Error(
             "Each product must have a valid quantity greater than 0."
           );

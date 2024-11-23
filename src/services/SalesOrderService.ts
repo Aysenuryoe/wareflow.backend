@@ -79,7 +79,6 @@ export async function updateSalesOrder(
     throw new Error(errorMsg);
   }
 
-  // Überprüfen, ob alle Produkte existieren
   if (salesOrderResource.products) {
     const barcodes = salesOrderResource.products.map((product) => product.barcode);
 
