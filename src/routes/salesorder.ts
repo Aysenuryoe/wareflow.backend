@@ -52,26 +52,26 @@ salesRouter.get(
 salesRouter.post(
   "/",
   body("products")
-    .isArray()
-    .notEmpty()
-    .withMessage("Products must be a non-empty array.")
-    .custom((products) => {
-      if (products.length === 0) {
-        throw new Error("Products must be a non-empty array.");
+  .isArray({ min: 1 })
+  .withMessage("Products must be a non-empty array.")
+  .custom((products) => {
+    for (const product of products) {
+      if (!product.barcode || typeof product.barcode !== "string") {
+        throw new Error("Each product must have a valid barcode.");
       }
-      for (const product of products) {
-        if (!product.barcode || typeof product.barcode !== "string") {
-          throw new Error("Each product must have a valid barcode.");
-        }
-        if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-          throw new Error(
-            "Each product must have a valid quantity greater than 0."
-          );
-        }
+      if (!Number.isInteger(product.quantity) || product.quantity < 1) {
+        throw new Error(
+          "Each product must have a valid quantity greater than 0."
+        );
       }
-      return true;
-    }),
-
+      if (typeof product.price !== "number" || product.price < 1) {
+        throw new Error(
+          "Each product must have a valid price greater than or equal to 1."
+        );
+      }
+    }
+    return true;
+  }),
   body("saleDate"),
   body("source").isIn(["store"]),
   // authentication,
@@ -98,23 +98,26 @@ salesRouter.put(
   "/:id",
   param("id").isMongoId(),
   body("products")
-    .isArray()
-    .notEmpty()
-    .withMessage("Products must be a non-empty array.")
-    .custom((products) => {
-      for (const product of products) {
-        if (!product.barcode || typeof product.barcode !== "string") {
-          throw new Error("Each product must have a valid barcode.");
-        }
-        if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-          throw new Error(
-            "Each product must have a valid quantity greater than 0."
-          );
-        }
+  .isArray({ min: 1 })
+  .withMessage("Products must be a non-empty array.")
+  .custom((products) => {
+    for (const product of products) {
+      if (!product.barcode || typeof product.barcode !== "string") {
+        throw new Error("Each product must have a valid barcode.");
       }
-      return true;
-    }),
-  
+      if (!Number.isInteger(product.quantity) || product.quantity < 1) {
+        throw new Error(
+          "Each product must have a valid quantity greater than 0."
+        );
+      }
+      if (typeof product.price !== "number" || product.price < 1) {
+        throw new Error(
+          "Each product must have a valid price greater than or equal to 1."
+        );
+      }
+    }
+    return true;
+  }),
   body("saleDate"),
   body("source").isIn(["store"]),
   // authentication,

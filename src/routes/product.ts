@@ -57,7 +57,7 @@ productRouter.post(
     .isLength({ min: 6, max: 6 })
     .withMessage("Barcode must be exactly 6 characters long."),
   body("productNum").isString().isLength({ min: 10, max: 10 }),
-  body("stock").isInt({ min: 0 }),
+  body("stock").isInt({ min: 1 }),
   // authentication,
   // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
@@ -88,7 +88,7 @@ productRouter.put(
     .isLength({ min: 6, max: 6 })
     .withMessage("Barcode must be exactly 6 characters long."),
   body("productNum").isString().isLength({ min: 10, max: 10 }),
-  body("stock").isInt({ min: 0 }),
+  body("stock").isInt({ min: 1 }),
   // authentication,
   // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
