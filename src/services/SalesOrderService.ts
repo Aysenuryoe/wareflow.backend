@@ -1,8 +1,8 @@
-import { ObjectId, Types } from "mongoose";
 import { logger } from "../../src/logger";
 import { Product } from "../../src/models/ProductModel";
 import { SalesOrder } from "../../src/models/SalesOrderModel";
 import { SalesOrderResource } from "../../src/Resources";
+import { decreaseStock, increaseStock } from "../services/StockService";
 
 export async function getAllSalesOrders(): Promise<SalesOrderResource[]> {
   const salesOrders = await SalesOrder.find().exec();
@@ -38,7 +38,7 @@ export async function getSalesOrder(id: string): Promise<SalesOrderResource> {
       price: item.price,
       quantity: item.quantity,
     })),
-   
+
     saleDate: salesOrder.saleDate,
     source: salesOrder.source,
   };
@@ -56,6 +56,21 @@ export async function createSalesOrder(
     saleDate: salesOrderResource.saleDate,
     source: "store",
   });
+
+  for (const item of salesOrderResource.products) {
+    try {
+      await decreaseStock(item.barcode, item.quantity);
+    } catch (error) {
+      // Wenn der Bestand für eines der Produkte nicht ausreicht, wird die Bestellung abgebrochen.
+      // Die Verkaufsbestellung wird in diesem Fall zurückgerollt.
+      await SalesOrder.findByIdAndDelete(salesOrder._id);
+      if (error instanceof Error) {
+        throw new Error(
+          `Failed to create sales order: ${error.message}. Sales order was rolled back.`
+        );
+      }
+    }
+  }
 
   return {
     id: salesOrder._id.toString(),
@@ -80,7 +95,9 @@ export async function updateSalesOrder(
   }
 
   if (salesOrderResource.products) {
-    const barcodes = salesOrderResource.products.map((product) => product.barcode);
+    const barcodes = salesOrderResource.products.map(
+      (product) => product.barcode
+    );
 
     const products = await Product.find({ barcode: { $in: barcodes } });
 
@@ -88,45 +105,82 @@ export async function updateSalesOrder(
       const missingBarcodes = barcodes.filter(
         (barcode) => !products.some((product) => product.barcode === barcode)
       );
-      const errorMsg = `One or more products do not exist. Missing barcodes: ${missingBarcodes.join(", ")}`;
+      const errorMsg = `One or more products do not exist. Missing barcodes: ${missingBarcodes.join(
+        ", "
+      )}`;
       logger.error(errorMsg);
       throw new Error(errorMsg);
     }
   }
 
-  const updateObject: {
-    products?: {
-      barcode: string;
-      price: number;
-      quantity: number;
-    }[];
-    saleDate?: Date;
-    source?: string;
-  } = {};
-
+  // Überprüfen und Bestände aktualisieren, wenn sich die Menge geändert hat
   if (salesOrderResource.products) {
+    for (const newProduct of salesOrderResource.products) {
+      const oldProduct = salesOrder.products.find(
+        (item) => item.barcode === newProduct.barcode
+      );
+
+      if (oldProduct && oldProduct.quantity !== newProduct.quantity) {
+        const quantityDifference = newProduct.quantity - oldProduct.quantity;
+
+        try {
+          if (quantityDifference > 0) {
+            // Menge hat zugenommen -> Lagerbestand muss verringert werden
+            await decreaseStock(newProduct.barcode, quantityDifference);
+          } else if (quantityDifference < 0) {
+            // Menge hat abgenommen -> Lagerbestand muss erhöht werden
+            await increaseStock(
+              newProduct.barcode,
+              Math.abs(quantityDifference)
+            );
+          }
+        } catch (error) {
+          const errorMsg = `Failed to update stock for product with barcode ${
+            newProduct.barcode
+          }: ${error instanceof Error ? error.message : "Unknown error"}`;
+          logger.error(errorMsg);
+          throw new Error(errorMsg);
+        }
+      }
+    }
+
+    // Update-Objekt für die Produkte aktualisieren
+    const updateObject: {
+      products?: {
+        barcode: string;
+        price: number;
+        quantity: number;
+      }[];
+      saleDate?: Date;
+      source?: string;
+    } = {};
+
     updateObject.products = salesOrderResource.products.map((item) => ({
       barcode: item.barcode,
       price: item.price,
       quantity: item.quantity,
     }));
-  }
 
-  if (salesOrderResource.saleDate) {
-    updateObject.saleDate = new Date(salesOrderResource.saleDate);
-  }
+    if (salesOrderResource.saleDate) {
+      updateObject.saleDate = new Date(salesOrderResource.saleDate);
+    }
 
-  
-  await SalesOrder.updateOne({ _id: salesOrderResource.id }, updateObject);
-  salesOrder = await SalesOrder.findById(salesOrderResource.id).exec();
-  if (!salesOrder) {
-    const errorMsg = "Sale order not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+    // Verkaufsbestellung aktualisieren
+    salesOrder = await SalesOrder.findByIdAndUpdate(
+      salesOrderResource.id,
+      updateObject,
+      { new: true }
+    );
+
+    if (!salesOrder) {
+      const errorMsg = "Sales order not found after update.";
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
   }
 
   return {
-    id: salesOrder.id,
+    id: salesOrder._id.toString(),
     products: salesOrder.products.map((item) => ({
       barcode: item.barcode,
       price: item.price,
@@ -145,5 +199,18 @@ export async function deleteSalesOrder(id: string): Promise<void> {
     logger.error(errorMsg);
     throw new Error(errorMsg);
   }
+
+  for (const item of salesOrder.products) {
+    try {
+      await increaseStock(item.barcode, item.quantity);
+    } catch (error) {
+      const errorMsg = `Failed to increase stock for product with barcode ${
+        item.barcode
+      }: ${error instanceof Error ? error.message : "Unknown error"}`;
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+  }
+
   await SalesOrder.deleteOne({ _id: id });
 }

@@ -1,8 +1,7 @@
-
 import { Product } from "../models/ProductModel";
 
-export async function increaseStock(productId: string, quantity: number) {
-  const product = await Product.findById(productId);
+export async function increaseStock(barcode: string, quantity: number) {
+  const product = await Product.findOne({ barcode: barcode });
   if (!product) {
     throw new Error("Product not found.");
   }
@@ -11,8 +10,8 @@ export async function increaseStock(productId: string, quantity: number) {
   return product;
 }
 
-export async function decreaseStock(productId: string, quantity: number) {
-  const product = await Product.findById(productId);
+export async function decreaseStock(barcode: string, quantity: number) {
+  const product = await Product.findOne({ barcode: barcode });
   if (!product) {
     throw new Error("Product not found.");
   }
