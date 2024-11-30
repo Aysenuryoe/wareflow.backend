@@ -4,11 +4,11 @@ import { body, param, validationResult } from "express-validator";
 // import { authentication } from "../../src/routes/authentication";
 // import { authorizeRole } from "../../src/middleware/roleMiddleware";
 import {
-  createSalesOrder,
+  createSaleOrder,
   deleteSalesOrder,
-  getAllSalesOrders,
-  getSalesOrder,
-  updateSalesOrder,
+  getAllSales,
+  getSaleOrder,
+  updateSale,
 } from "../../src/services/SalesOrderService";
 
 const salesRouter = express.Router();
@@ -19,7 +19,7 @@ salesRouter.get(
   // authorizeRole(["a", "u"]),
   async (req, res, next) => {
     try {
-      const salesOrders = await getAllSalesOrders();
+      const salesOrders = await getAllSales();
       res.send(salesOrders);
     } catch (err) {
       next(err);
@@ -38,7 +38,7 @@ salesRouter.get(
       return res.status(400).json({ errors: err.array() });
     }
     try {
-      const salesOrder = await getSalesOrder(req.params!.id);
+      const salesOrder = await getSaleOrder(req.params!.id);
       res.send(salesOrder);
     } catch (err) {
       if (err instanceof Error) {
@@ -52,28 +52,28 @@ salesRouter.get(
 salesRouter.post(
   "/",
   body("products")
-  .isArray({ min: 1 })
-  .withMessage("Products must be a non-empty array.")
-  .custom((products) => {
-    for (const product of products) {
-      if (!product.barcode || typeof product.barcode !== "string") {
-        throw new Error("Each product must have a valid barcode.");
+    .isArray({ min: 1 })
+    .withMessage("Products must be a non-empty array.")
+    .custom((products) => {
+      for (const product of products) {
+        if (!product.productId || typeof product.productId !== "string") {
+          throw new Error("Each product must have a valid SKU.");
+        }
+        if (typeof product.price !== "number" || product.price < 1) {
+          throw new Error(
+            "Each product must have a valid price greater than or equal to 1."
+          );
+        }
+        if (!Number.isInteger(product.quantity) || product.quantity < 1) {
+          throw new Error(
+            "Each product must have a valid quantity greater than 0."
+          );
+        }
       }
-      if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-        throw new Error(
-          "Each product must have a valid quantity greater than 0."
-        );
-      }
-      if (typeof product.price !== "number" || product.price < 1) {
-        throw new Error(
-          "Each product must have a valid price greater than or equal to 1."
-        );
-      }
-    }
-    return true;
-  }),
-  body("saleDate"),
-  body("source").isIn(["store"]),
+      return true;
+    }),
+  body("totalAmount").isFloat(),
+  body("createdAt").isISO8601(),
   // authentication,
   // authorizeRole(["a"]),
   async (req, res, next) => {
@@ -83,7 +83,7 @@ salesRouter.post(
     }
     try {
       const salesOrderData = req.body;
-      const newSalesOrder = await createSalesOrder(salesOrderData);
+      const newSalesOrder = await createSaleOrder(salesOrderData);
       res.status(201).json(newSalesOrder);
     } catch (err) {
       if (err instanceof Error) {
@@ -98,28 +98,28 @@ salesRouter.put(
   "/:id",
   param("id").isMongoId(),
   body("products")
-  .isArray({ min: 1 })
-  .withMessage("Products must be a non-empty array.")
-  .custom((products) => {
-    for (const product of products) {
-      if (!product.barcode || typeof product.barcode !== "string") {
-        throw new Error("Each product must have a valid barcode.");
+    .isArray({ min: 1 })
+    .withMessage("Products must be a non-empty array.")
+    .custom((products) => {
+      for (const product of products) {
+        if (!product.productId || typeof product.productId !== "string") {
+          throw new Error("Each product must have a valid SKU.");
+        }
+        if (typeof product.price !== "number" || product.price < 1) {
+          throw new Error(
+            "Each product must have a valid price greater than or equal to 1."
+          );
+        }
+        if (!Number.isInteger(product.quantity) || product.quantity < 1) {
+          throw new Error(
+            "Each product must have a valid quantity greater than 0."
+          );
+        }
       }
-      if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-        throw new Error(
-          "Each product must have a valid quantity greater than 0."
-        );
-      }
-      if (typeof product.price !== "number" || product.price < 1) {
-        throw new Error(
-          "Each product must have a valid price greater than or equal to 1."
-        );
-      }
-    }
-    return true;
-  }),
-  body("saleDate"),
-  body("source").isIn(["store"]),
+      return true;
+    }),
+  body("totalAmount").isFloat(),
+  body("createdAt").isISO8601(),
   // authentication,
   // authorizeRole(["a"]),
   async (req, res, next) => {
@@ -132,7 +132,7 @@ salesRouter.put(
         id: req.params!.id,
         ...req.body,
       };
-      const updatedSalesOrder = await updateSalesOrder(salesOrderResource);
+      const updatedSalesOrder = await updateSale(salesOrderResource);
       res.send(updatedSalesOrder);
     } catch (err) {
       if (err instanceof Error) {
@@ -155,7 +155,7 @@ salesRouter.delete(
     }
     try {
       const id = req.params!.id;
-      const salesOrder = await getSalesOrder(id);
+      const salesOrder = await getSaleOrder(id);
 
       await deleteSalesOrder(id);
       res.status(204).end();

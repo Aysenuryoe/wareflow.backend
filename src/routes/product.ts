@@ -50,14 +50,16 @@ productRouter.get(
 
 productRouter.post(
   "/",
-  body("article").isString().isLength({ min: 1, max: 100 }),
-  body("price").isFloat({ min: 1, max: 99 }),
-  body("barcode")
+  body("name").isString().isLength({ min: 3, max: 100 }),
+  body("size").isString().isIn(["XS", "S", "M", "L", "XL"]),
+  body("price").isFloat({ min: 1 }),
+  body("color").isString(),
+  body("sku")
     .isString()
-    .isLength({ min: 6, max: 6 })
-    .withMessage("Barcode must be exactly 6 characters long."),
-  body("productNum").isString().isLength({ min: 10, max: 10 }),
-  body("stock").isInt({ min: 1 }),
+    .isLength({ min: 6, max: 12 })
+    .matches(/^[a-zA-Z0-9_-]+$/),
+  body("stock").isInt({ min: 0 }),
+  body("minStock").isFloat(),
   // authentication,
   // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
@@ -81,14 +83,16 @@ productRouter.post(
 productRouter.put(
   "/:id",
   param("id").isMongoId(),
-  body("article").isString().isLength({ min: 1, max: 100 }),
-  body("price").isFloat({ min: 1, max: 99 }),
-  body("barcode")
+  body("name").isString().isLength({ min: 3, max: 100 }),
+  body("size").isString().isIn(["XS", "S", "M", "L", "XL"]),
+  body("price").isFloat({ min: 1 }),
+  body("color").isString(),
+  body("sku")
     .isString()
-    .isLength({ min: 6, max: 6 })
-    .withMessage("Barcode must be exactly 6 characters long."),
-  body("productNum").isString().isLength({ min: 10, max: 10 }),
-  body("stock").isInt({ min: 1 }),
+    .isLength({ min: 6, max: 12 })
+    .matches(/^[a-zA-Z0-9_-]+$/),
+  body("stock").isInt({ min: 0 }),
+  body("minStock").isFloat(),
   // authentication,
   // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {

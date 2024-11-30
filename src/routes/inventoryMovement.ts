@@ -53,32 +53,15 @@ inventoryMovementRouter.get(
   }
 );
 
+
 inventoryMovementRouter.post(
   "/",
-  body("products")
-    .isArray()
-    .notEmpty()
-    .withMessage("Products must be a non-empty array.")
-    .custom((products) => {
-      if (products.length === 0) {
-        throw new Error("Products must be a non-empty array.");
-      }
-      for (const product of products) {
-        if (!product.barcode || typeof product.barcode !== "string") {
-          throw new Error("Each product must have a unique barcode.");
-        }
-        if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-          throw new Error("Each product must have a valid quantity greater than 0.");
-        }
-      }
-      return true;
-    }),
-  body("movementType")
-    .isIn(["inbound", "outbound"])
-    .withMessage("Movement type must be either 'inbound' or 'outbound'."),
-  body("status")
-    .isIn(["movement_placed", "pending", "completed", "canceled"])
-    .withMessage("Status must be one of the predefined values."),
+  body("productId").isString(),
+  body("type")
+    .isString()
+    .isIn(["Inbound", "Outbound", "Return", "Adjustment"]),
+  body("quantity").isFloat({ min: 1 }),
+  body("date").isISO8601(),
   // authentication,
   // authorizeRole(["a"]),
   async (req, res, next) => {
@@ -103,26 +86,12 @@ inventoryMovementRouter.post(
 inventoryMovementRouter.put(
   "/:id",
   param("id").isMongoId(),
-  body("products")
-    .isArray()
-    .notEmpty()
-    .withMessage("Products must be a non-empty array.")
-    .custom((products) => {
-      if (products.length === 0) {
-        throw new Error("Products must be a non-empty array.");
-      }
-      for (const product of products) {
-        if (!product.barcode || typeof product.barcode !== "string") {
-          throw new Error("Each product must have a valid barcode.");
-        }
-        if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-          throw new Error("Each product must have a valid quantity greater than 0.");
-        }
-      }
-      return true;
-    }),
-  body("movementType").isIn(["inbound", "outbound"]),
-  body("status").isIn(["movement_placed", "pending", "completed", "canceled"]),
+  body("productId").isString(),
+  body("type")
+    .isString()
+    .isIn(["Inbound", "Outbound", "Return", "Adjustment"]),
+  body("quantity").isFloat({ min: 1 }),
+  body("date").isISO8601(),
   // authentication,
   // authorizeRole(["a"]),
   async (req, res, next) => {

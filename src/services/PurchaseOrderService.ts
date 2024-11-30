@@ -67,7 +67,7 @@ export async function createPurchaseOrder(
   };
 }
 
-export async function updateSale(
+export async function updatePurchaseOrder(
   purchaseOrderResource: PurchaseOrderResource
 ): Promise<PurchaseOrderResource> {
   let purchase = await PurchaseOrder.findById(purchaseOrderResource.id);

@@ -1,51 +1,45 @@
-import express from "express";
-import { body, validationResult } from "express-validator";
-import { increaseStock, decreaseStock } from "../services/StockService";
+import express, { Request, Response, NextFunction } from "express";
+import { body, param, validationResult } from "express-validator";
+import { updateStockBySKU } from "../services/StockService";
 
 const stockRouter = express.Router();
 
-stockRouter.post(
-  "/increase",
-  body("barcode").isNumeric(),
-  body("quantity").isInt({ gt: 0 }),
-  async (req, res) => {
-    const err = validationResult(req);
-    if (!err.isEmpty()) {
-      return res.status(400).json({ errors: err.array() });
-    }
 
-    const { barcode, quantity } = req.body;
-
-    try {
-      const updatedProduct = await increaseStock(barcode, quantity);
-      res.status(200).json(updatedProduct);
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(404).json({ error: err.message });
-      }
-    }
+const validateRequest = (req: Request, res: Response, next: NextFunction) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-);
+  next();
+};
 
 stockRouter.post(
-  "/decrease",
-  body("barcode").isNumeric(),
-  body("quantity").isInt({ gt: 0 }),
-  async (req, res) => {
-    const err = validationResult(req);
-    if (!err.isEmpty()) {
-      return res.status(400).json({ errors: err.array() });
-    }
-
-    const { barcode, quantity } = req.body;
-
-    try {
-      const updatedProduct = await decreaseStock(barcode, quantity);
-      res.status(200).json(updatedProduct);
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(404).json({ error: err.message });
+  "/update",
+  body("sku")
+    .isString()
+    .withMessage("SKU must be a valid string.")
+    .isLength({ min: 6, max: 12 })
+    .withMessage("SKU must be between 6 and 12 characters."),
+  body("quantity")
+    .isInt()
+    .withMessage("Quantity must be an integer.")
+    .custom((value) => {
+      if (value === 0) {
+        throw new Error("Quantity cannot be zero.");
       }
+      return true;
+    }),
+  validateRequest,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { sku, quantity } = req.body;
+      const updatedProduct = await updateStockBySKU(sku, quantity);
+      res.status(200).json({
+        message: `Stock updated for SKU: ${sku}`,
+        updatedStock: updatedProduct.stock,
+      });
+    } catch (err) {
+      next(err);
     }
   }
 );

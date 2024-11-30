@@ -2,11 +2,12 @@ import express, { Request, Response, NextFunction } from "express";
 import { body, param, validationResult } from "express-validator";
 import {
   createPurchaseOrder,
-  deletePurchaseOrder,
+  deletePurchase,
   getAllPurchaseOrders,
   getPurchaseOrder,
   updatePurchaseOrder,
-} from "../../src/services/PurchaseOrderService";
+} from "src/services/PurchaseOrderService";
+
 // import { authentication } from "../../src/routes/authentication";
 // import { authorizeRole } from "../../src/middleware/roleMiddleware";
 
@@ -17,11 +18,10 @@ purchaseRouter.get(
   // authentication,
   // authorizeRole(["a", "u"]),
   async (req: Request, res: Response, next: NextFunction) => {
-
     try {
       const purchaseOrders = await getAllPurchaseOrders();
       res.send(purchaseOrders);
-    }  catch (err) {
+    } catch (err) {
       if (err instanceof Error) {
         res.status(404).send({ error: err.message });
         next(err);
@@ -63,18 +63,22 @@ purchaseRouter.post(
         throw new Error("Products must be a non-empty array.");
       }
       for (const product of products) {
-        if (!product.barcode || typeof product.barcode !== "string") {
-          throw new Error("Each product must have a unique barcode.");
+        if (!product.productId || typeof product.productId !== "string") {
+          throw new Error("Each product must have a unique product ID.");
         }
         if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-          throw new Error("Each product must have a valid quantity greater than 0.");
+          throw new Error(
+            "Each product must have a valid quantity greater than 0."
+          );
         }
       }
       return true;
     }),
-  
-  body("orderDate"),
+
+  body("supplier").isString(),
   body("status").isIn(["Ordered", "Pending", "Arrived", "Cancelled"]),
+  body("orderDate").isISO8601(),
+  body("receivedDate").optional().isISO8601(),
   // authentication,
   // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
@@ -107,18 +111,21 @@ purchaseRouter.put(
         throw new Error("Products must be a non-empty array.");
       }
       for (const product of products) {
-        if (!product.barcode || typeof product.barcode !== "string") {
-          throw new Error("Each product must have a unique barcode.");
+        if (!product.productId || typeof product.productId !== "string") {
+          throw new Error("Each product must have a unique product ID.");
         }
         if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-          throw new Error("Each product must have a valid quantity greater than 0.");
+          throw new Error(
+            "Each product must have a valid quantity greater than 0."
+          );
         }
       }
       return true;
     }),
-  
-  body("orderDate"),
+  body("supplier").isString(),
   body("status").isIn(["Ordered", "Pending", "Arrived", "Cancelled"]),
+  body("orderDate").isISO8601(),
+  body("receivedDate").optional().isISO8601(),
   // authentication,
   // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
@@ -131,7 +138,9 @@ purchaseRouter.put(
         id: req.params.id,
         ...req.body,
       };
-      const updatedPurchaseOrder = await updatePurchaseOrder(purchaseOrderResource);
+      const updatedPurchaseOrder = await updatePurchaseOrder(
+        purchaseOrderResource
+      );
       res.send(updatedPurchaseOrder);
     } catch (err) {
       if (err instanceof Error) {
@@ -154,7 +163,7 @@ purchaseRouter.delete(
     }
     try {
       const id = req.params.id;
-      await deletePurchaseOrder(id);
+      await deletePurchase(id);
       res.status(204).end();
     } catch (err) {
       if (err instanceof Error) {
