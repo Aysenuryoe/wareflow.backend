@@ -1,6 +1,6 @@
 import { JwtPayload, sign, verify } from "jsonwebtoken";
 import { logger } from "../../src/logger";
-import { User } from "../../src/models/UserModel";
+import { User } from "../models/UserModel";
 import dotenv from "dotenv"
 dotenv.config()
 

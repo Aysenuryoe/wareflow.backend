@@ -1,8 +1,8 @@
 import express from "express";
 import { body, matchedData, validationResult } from "express-validator";
-import { IUser } from "../../src/models/UserModel";
+import { IUser } from "../models/UserModel";
 import { LoginResource } from "../../src/Resources";
-import { verifyCredentialsGenerateToken } from "../../src/services/JWTService";
+import { verifyCredentialsGenerateToken } from "../services/JWTService";
 
 const loginrouter = express.Router();
 

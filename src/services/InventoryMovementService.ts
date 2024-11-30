@@ -1,4 +1,4 @@
-import { InventoryMovement } from "../../src/models/IventoryMovementModel";
+import { InventoryMovement } from "../models/IventoryMovementModel";
 import { InventoryMovementResource } from "../../src/Resources";
 
 import { Product } from "../../src/models/ProductModel";

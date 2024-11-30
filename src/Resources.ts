@@ -19,7 +19,7 @@ export type PurchaseOrderResource = {
   supplier: string;
   status: "Ordered" | "Pending" | "Arrived" | "Cancelled";
   orderDate: Date;
-  receivedDate: Date;
+  receivedDate?: Date;
 
 };
 
@@ -88,7 +88,7 @@ export type GoodsReceiptResource = {
 export type ComplaintsResource = {
   id?: string;
   referenceId: string;
-  referenceType: "GoodsReceipt" | "Sales";
+  referenceType: "GoodsReceipt" | "Sales" | "PurchaseOrder";
   reason: string;
   quantity: number;
   status: "Open" | "Resolved";

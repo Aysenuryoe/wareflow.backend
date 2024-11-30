@@ -7,7 +7,7 @@ import {
   getAllInventoryMovements,
   getInventoryMovement,
   updateInventoryMovement,
-} from "../../src/services/InventoryMovementService";
+} from "../services/InventoryMovementService";
 // import { authentication } from "../../src/routes/authentication";
 // import { authorizeRole } from "../../src/middleware/roleMiddleware";
 

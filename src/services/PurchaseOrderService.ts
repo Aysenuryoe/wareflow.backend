@@ -1,4 +1,4 @@
-import { PurchaseOrder } from "src/models/PurchaseOrderModel";
+import { PurchaseOrder } from "../models/PurchaseOrderModel";
 import { PurchaseOrderResource } from "src/Resources";
 
 export async function getAllPurchaseOrders(): Promise<PurchaseOrderResource[]> {

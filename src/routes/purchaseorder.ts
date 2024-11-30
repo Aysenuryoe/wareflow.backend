@@ -6,7 +6,7 @@ import {
   getAllPurchaseOrders,
   getPurchaseOrder,
   updatePurchaseOrder,
-} from "src/services/PurchaseOrderService";
+} from "../services/PurchaseOrderService";
 
 // import { authentication } from "../../src/routes/authentication";
 // import { authorizeRole } from "../../src/middleware/roleMiddleware";

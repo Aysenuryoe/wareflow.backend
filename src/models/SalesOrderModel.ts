@@ -1,5 +1,5 @@
 import mongoose, { model, Schema, Types } from "mongoose";
-import { logger } from "../../src/logger";
+
 
 export interface ISalesOrder {
   products: {

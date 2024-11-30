@@ -1,4 +1,4 @@
-import { GoodsReceipt } from "../../src/models/GoodsReceiptModel";
+import { GoodsReceipt } from "../models/GoodsReceiptModel";
 import { GoodsReceiptResource } from "../../src/Resources";
 
 

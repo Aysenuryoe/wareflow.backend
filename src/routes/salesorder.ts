@@ -9,7 +9,7 @@ import {
   getAllSales,
   getSaleOrder,
   updateSale,
-} from "../../src/services/SalesOrderService";
+} from "../services/SalesOrderService";
 
 const salesRouter = express.Router();
 

@@ -6,7 +6,7 @@ import {
   getAllReturns,
   getReturn,
   updateReturn,
-} from "../../src/services/ReturnService";
+} from "../services/ReturnService";
 import { ReturnResource } from "../../src/Resources";
 
 const returnRouter = express.Router();

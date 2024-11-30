@@ -1,6 +1,6 @@
-import { SalesOrder } from "src/models/SalesOrderModel";
+import { SalesOrder } from "../models/SalesOrderModel";
 import { SalesOrderResource } from "src/Resources";
-import { updateProduct } from "./ProductService";
+
 
 export async function getAllSales(): Promise<SalesOrderResource[]> {
   let sales = await SalesOrder.find().exec();
@@ -78,7 +78,7 @@ export async function updateSale(
       totalAmount?: number;
       createdAt?: Date;
     } = {};
-    
+
     if (salesOrderResource.products) {
       updateObject.products = salesOrderResource.products.map((item) => ({
         productId: item.productId,

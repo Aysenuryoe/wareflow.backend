@@ -1,4 +1,4 @@
-import { Complaint } from "../../src/models/ComplaintsModel";
+import { Complaint } from "../models/ComplaintsModel";
 import { ComplaintsResource } from "../../src/Resources";
 
 export async function getAllComplaints(): Promise<ComplaintsResource[]> {

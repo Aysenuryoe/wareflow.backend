@@ -31,7 +31,7 @@ export const PurchaseOrderSchema = new Schema<IPurchaseOrder>(
       default: "Ordered"
     },
     orderDate: { type: Date, default: Date.now },
-    receivedDate: { type: Date, required: true },
+    receivedDate: { type: Date},
   },
   { timestamps: true }
 );

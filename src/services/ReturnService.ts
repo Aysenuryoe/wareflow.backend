@@ -1,5 +1,5 @@
-import { Product } from "src/models/ProductModel";
-import { Return } from "src/models/ReturnModel";
+import { Product } from "../models/ProductModel";
+import { Return } from "../models/ReturnModel";
 import { ReturnResource } from "src/Resources";
 
 export async function getAllReturns(): Promise<ReturnResource[]> {

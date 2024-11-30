@@ -6,7 +6,7 @@ import {
   getAllGoodsReceipts,
   getGoodsReceipt,
   updateGoodsReceipt,
-} from "../../src/services/GoodsReceiptService";
+} from "../services/GoodsReceiptService";
 import { GoodsReceiptResource } from "../../src/Resources";
 
 const goodsReceiptRouter = express.Router();

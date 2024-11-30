@@ -6,7 +6,7 @@ import {
   getAllProducts,
   getProduct,
   updateProduct,
-} from "../../src/services/ProductService";
+} from "../services/ProductService";
 // import { authentication } from "../../src/routes/authentication";
 // import { authorizeRole } from "../../src/middleware/roleMiddleware";
 
@@ -51,7 +51,9 @@ productRouter.get(
 productRouter.post(
   "/",
   body("name").isString().isLength({ min: 3, max: 100 }),
-  body("size").isString().isIn(["XS", "S", "M", "L", "XL"]),
+  body("size").isString().isIn([  "XS", "S", "M", "L", "XL",        
+    "36", "37", "38", "39", "40",     
+    "41", "42", "43", "44", "NOSIZE"]),
   body("price").isFloat({ min: 1 }),
   body("color").isString(),
   body("sku")
@@ -84,7 +86,9 @@ productRouter.put(
   "/:id",
   param("id").isMongoId(),
   body("name").isString().isLength({ min: 3, max: 100 }),
-  body("size").isString().isIn(["XS", "S", "M", "L", "XL"]),
+  body("size").isString().isIn([  "XS", "S", "M", "L", "XL",        
+    "36", "37", "38", "39", "40",     
+    "41", "42", "43", "44", "NOSIZE"]),
   body("price").isFloat({ min: 1 }),
   body("color").isString(),
   body("sku")

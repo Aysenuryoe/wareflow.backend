@@ -1,4 +1,4 @@
-import { Product } from "../../src/models/ProductModel";
+import { Product } from "../models/ProductModel";
 import { ProductResource } from "src/Resources";
 
 export async function getAllProducts(): Promise<ProductResource[]> {

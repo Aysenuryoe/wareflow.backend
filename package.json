@@ -49,6 +49,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.1.2",
     "restmatcher": "^1.1.9",
+    "uuid": "^11.0.3",
     "winston": "^3.8.2",
     "ws": "^8.18.0"
   },

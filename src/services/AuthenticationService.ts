@@ -1,4 +1,4 @@
-import { User } from "../../src/models/UserModel";
+import { User } from "../models/UserModel";
 
 export async function login(
   email: string,

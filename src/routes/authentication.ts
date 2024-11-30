@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { verifyTokenExtractData } from "../../src/services/JWTService";
+import { verifyTokenExtractData } from "../services/JWTService";
 
 declare global {
   namespace Express {

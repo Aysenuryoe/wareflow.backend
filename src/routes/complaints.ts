@@ -6,7 +6,7 @@ import {
   getAllComplaints,
   getComplaint,
   updateComplaint,
-} from "../../src/services/ComplaintsService";
+} from "../services/ComplaintsService";
 import { ComplaintsResource } from "../../src/Resources";
 
 const complaintRouter = express.Router();
