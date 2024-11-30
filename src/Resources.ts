@@ -1,49 +1,45 @@
 export type ProductResource = {
   id?: string;
-  article: string;
-  barcode: string;
+  name: string;
   size: string;
   price: number;
-  productNum: string;
+  color: string,
+  sku: string,
   stock: number;
+  minStock: number;
   description?: string;
 };
 
 export type PurchaseOrderResource = {
   id?: string;
   products: {
-    barcode: string;
+    productId: string;
     quantity: number;
   }[];
-
+  supplier: string;
   status: "Ordered" | "Pending" | "Arrived" | "Cancelled";
   orderDate: Date;
-  receivedDate?: Date;
+  receivedDate: Date;
 
 };
 
 export type SalesOrderResource = {
   id?: string;
   products: {
-    barcode: string;
+    productId: string;
     price: number;
     quantity: number;
   }[];
- 
-  saleDate: Date;
-  source: "store";
+  totalAmount: number;
+  createdAt: Date;
 };
 
 export type InventoryMovementResource = {
   id?: string;
-  products: {
-    barcode: string;
-    quantity: number;
-  }[];
-  movementType: "inbound" | "outbound";
+  productId: string;
+  type: "Inbound" | "Outbound" | "Return" | "Adjustment";
+  quantity: number;
   date: Date;
-  status: "movement_placed" | "pending" | "completed" | "canceled";
-  remarks?: string;
 };
 
 export type UserResource = {
@@ -61,3 +57,39 @@ export type LoginResource = {
   accessToken: string;
   tokenType: "Bearer";
 };
+
+
+export type ReturnResource = {
+  id?: string;
+  salesId: string;
+  products: {
+      productId: string;
+      quantity: number;
+      reason: string;
+    }[];
+    
+  status: string;
+  createdAt: Date
+};
+
+export type GoodsReceiptResource = {
+  id?: string;
+  purchaseOrderId: string; 
+  products: {
+    productId: string;
+    receivedQuantity: number; 
+    discrepancies?: string; 
+  }[];
+  receivedDate: Date; 
+  status: "Pending" | "Completed" | "Partial"; 
+  remarks?: string;
+}
+
+export type ComplaintsResource = {
+  id?: string;
+  referenceId: string;
+  referenceType: "GoodsReceipt" | "Sales";
+  reason: string;
+  quantity: number;
+  status: "Open" | "Resolved";
+}

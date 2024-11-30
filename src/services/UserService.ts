@@ -1,5 +1,4 @@
 import { UserResource, UsersResource } from "../../src/Resources";
-import { logger } from "../../src/logger";
 import { User } from "../../src/models/UserModel";
 
 export async function getAllUsers(): Promise<UsersResource> {
@@ -7,10 +6,8 @@ export async function getAllUsers(): Promise<UsersResource> {
   let usersResource: UserResource[] = new Array();
 
   if (users.length === 0) {
-    const errorMsg = "User not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
-  }else {
+    throw new Error("User not found.");
+  } else {
     for (let user of users) {
       let userResource = {
         id: user.id,
@@ -25,9 +22,7 @@ export async function getAllUsers(): Promise<UsersResource> {
 export async function getUser(id: string): Promise<UserResource> {
   const user = await User.findById(id);
   if (!user) {
-    const errorMsg = "User not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new Error("User not found.");
   }
 
   const userResource: UserResource = {
@@ -46,9 +41,7 @@ export async function createUser(
     email: userResource.email.toLowerCase(),
   });
   if (existingUser) {
-    const errorMsg = "A user with that E-Mail already exists.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new Error("User not found.");
   }
   let user = await User.create({
     email: userResource.email,
@@ -59,14 +52,13 @@ export async function createUser(
   return {
     id: user.id,
     email: user.email,
-    admin: user.admin
+    admin: user.admin,
   };
 }
 
 export async function updateUser(
   userResource: UserResource
 ): Promise<UserResource> {
-
   const updateObject: {
     email?: string;
     password?: string;
@@ -77,7 +69,7 @@ export async function updateUser(
     updateObject.email = userResource.email;
   }
   if (userResource.password) {
-    updateObject.password = userResource.password; 
+    updateObject.password = userResource.password;
   }
   if (userResource.admin !== undefined) {
     updateObject.admin = userResource.admin;
@@ -87,9 +79,7 @@ export async function updateUser(
   let user = await User.findById(userResource.id).exec();
 
   if (!user) {
-    const errorMsg = "User not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new Error("User not found.");
   } else {
     return {
       id: user.id,
@@ -103,9 +93,7 @@ export async function updateUser(
 export async function deleteUser(id: string): Promise<void> {
   const user = await User.findById(id);
   if (!user) {
-    const errorMsg = "User not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new Error("User not found.");
   }
 
   await User.deleteOne({ _id: id });

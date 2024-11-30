@@ -1,132 +1,124 @@
 import { Product } from "../../src/models/ProductModel";
-import { ProductResource } from "../../src/Resources";
-import { logger } from "../../src/logger";
-import { InventoryMovement } from "../../src/models/IventoryMovementModel";
-import { PurchaseOrder } from "src/models/PurchaseOrderModel";
+import { ProductResource } from "src/Resources";
 
 export async function getAllProducts(): Promise<ProductResource[]> {
-  const products = await Product.find().exec();
-  const productResource: ProductResource[] = new Array();
-  for (var product of products) {
-    var resource: ProductResource = {
+  let products = await Product.find().exec();
+
+    return products.map((product) => ({
       id: product.id,
-      article: product.article,
+      name: product.name,
       size: product.size,
-      barcode: product.barcode,
       price: product.price,
-      productNum: product.productNum,
+      color: product.color,
+      sku: product.sku,
       stock: product.stock,
-    };
-    productResource.push(resource);
-  }
-  return productResource;
+      minStock: product.minStock,
+      description: product.description,
+    }));
+  
 }
 
 export async function getProduct(id: string): Promise<ProductResource> {
-  const product = await Product.findById(id);
-
+  let product = await Product.findById(id);
   if (!product) {
-    const errorMsg = "Product not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new Error("Product not found.");
   } else {
-    const productResource: ProductResource = {
-      id: product._id.toString(),
-      article: product.article,
+    return {
+      id: product.id,
+      name: product.name,
       size: product.size,
-      barcode: product.barcode,
       price: product.price,
-      productNum: product.productNum,
+      color: product.color,
+      sku: product.sku,
       stock: product.stock,
+      minStock: product.minStock,
+      description: product.description,
     };
-    return productResource;
   }
 }
 
 export async function createProduct(
   productResource: ProductResource
 ): Promise<ProductResource> {
-  const existingBarcode = await Product.findOne({
-    barcode: productResource.barcode,
+  let newProduct = await Product.create({
+    name: productResource.name,
+    size: productResource.size,
+    price: productResource.price,
+    color: productResource.color,
+    sku: productResource.sku,
+    stock: productResource.stock,
+    minStock: productResource.minStock,
+    description: productResource.description,
   });
-
-  if (existingBarcode) {
-    const errorMsg = "A product with the same barcode already exists.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
-  } else {
-    const product = await Product.create({
-      article: productResource.article,
-      size: productResource.size,
-      barcode: productResource.barcode,
-      price: productResource.price,
-      productNum: productResource.productNum,
-      stock: productResource.stock,
-    });
-
-    return {
-      id: product.id,
-      article: product.article,
-      size: product.size,
-      barcode: product.barcode,
-      price: product.price,
-      productNum: product.productNum,
-      stock: product.stock,
-    };
-  }
-}
-
-export async function updateProduct(
-  productResource: ProductResource
-): Promise<ProductResource> {
-  let product = await Product.findById(productResource.id);
-  const updateData: {
-    article?: string;
-    size?: string;
-    price?: number;
-    stock?: number;
-  } = {};
-
-  if (productResource.article) {
-    updateData.article = productResource.article;
-  }
-  if (productResource.size) {
-    updateData.size = productResource.size;
-  }
-  if (productResource.price) {
-    updateData.price = productResource.price;
-  }
-  if (productResource.stock) {
-    updateData.stock = productResource.stock;
-  }
-
-  await Product.updateOne({ _id: productResource.id }, updateData);
-  let updatedProduct = await Product.findById(productResource.id).exec();
-
-  if (!updatedProduct) {
-    const errorMsg = "Product not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
-  }
-
   return {
-    id: updatedProduct.id,
-    article: updatedProduct.article,
-    size: updatedProduct.size,
-    barcode: updatedProduct.barcode,
-    price: updatedProduct.price,
-    productNum: updatedProduct.productNum,
-    stock: updatedProduct.stock,
+    id: newProduct.id,
+    name: newProduct.name,
+    size: newProduct.size,
+    price: newProduct.price,
+    color: newProduct.color,
+    sku: newProduct.sku,
+    stock: newProduct.stock,
+    minStock: newProduct.minStock,
+    description: newProduct.description,
   };
-}
+};
+
+export async function updateProduct(productResource: ProductResource):Promise<ProductResource> {
+  let product = await Product.findById(productResource.id);
+  if (!product) {
+    throw new Error("Product not found.");
+  } else{
+    const updateObject: {
+      name?: string;
+      size?: string;
+      price?: number;
+      color?: string,
+      minStock?: number;
+      description?: string;
+    } = {};
+
+    if (productResource.name) {
+      updateObject.name = productResource.name;
+    }
+    if (productResource.size) {
+      updateObject.size = productResource.size;
+    }
+    if (productResource.price) {
+      updateObject.price = productResource.price;
+    }
+    if (productResource.color) {
+      updateObject.color = productResource.color;
+    }
+    if (productResource.minStock) {
+      updateObject.minStock = productResource.minStock;
+    }
+    if (productResource.description) {
+      updateObject.description = productResource.description;
+    }
+
+    await Product.updateOne({
+      _id: productResource.id
+    }, updateObject);
+    product = await Product.findById(productResource.id);
+
+    return{
+      name: product!.name,
+      size: product!.size,
+      price: product!.price,
+      color: product!.color,
+      sku: product!.sku,
+      stock: product!.stock,
+      minStock: product!.minStock,
+      description: product!.description
+    }
+  }
+};
 
 export async function deleteProduct(id: string): Promise<void> {
-  var product = await Product.findById(id);
+  let product = await Product.findById(id);
   if (!product) {
-    const errorMsg = "Product not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new Error("Product not found.");
   } else {
-    await Product.deleteOne({ _id: id });
+    await Product.deleteOne({_id: id});
   }
 }

@@ -1,31 +1,42 @@
-import { model, Schema, Types } from "mongoose";
+import mongoose, { model, Schema, Types } from "mongoose";
 import { logger } from "../../src/logger";
 
 export interface ISalesOrder {
   products: {
-    barcode: string;
+    productId: string;
     price: number;
     quantity: number;
   }[];
-
-  saleDate: Date;
-  source: "store";
+  totalAmount: number;
+  createdAt: Date;
 }
 
 const SalesOrderSchema = new Schema<ISalesOrder>(
   {
     products: [
       {
-        barcode: { type: String, required: true},
+        productId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
         price: { type: Number, required: true, min: 1 },
         quantity: { type: Number, required: true, min: 1 },
       },
     ],
-
-    saleDate: { type: Date, required: true },
-    source: { type: String, required: true, enum: ["store"], default: "store" },
+    totalAmount: { type: Number, required: true },
+    createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
+
+SalesOrderSchema.pre("save", function (next) {
+  this.totalAmount = this.products.reduce(
+    (sum, product) => sum + product.price * product.quantity,
+    0
+  );
+  next();
+});
+
 
 export const SalesOrder = model<ISalesOrder>("SalesOrder", SalesOrderSchema);

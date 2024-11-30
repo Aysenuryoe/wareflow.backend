@@ -1,216 +1,121 @@
-import { logger } from "../../src/logger";
-import { Product } from "../../src/models/ProductModel";
-import { SalesOrder } from "../../src/models/SalesOrderModel";
-import { SalesOrderResource } from "../../src/Resources";
-import { decreaseStock, increaseStock } from "../services/StockService";
+import { SalesOrder } from "src/models/SalesOrderModel";
+import { SalesOrderResource } from "src/Resources";
+import { updateProduct } from "./ProductService";
 
-export async function getAllSalesOrders(): Promise<SalesOrderResource[]> {
-  const salesOrders = await SalesOrder.find().exec();
+export async function getAllSales(): Promise<SalesOrderResource[]> {
+  let sales = await SalesOrder.find().exec();
+  const salesOrderResources: SalesOrderResource[] = sales.map((sale) => ({
+    id: sale.id,
+    products: sale.products.map((item) => ({
+      productId: item.productId.toString(),
+      price: item.price,
+      quantity: item.quantity,
+    })),
+    totalAmount: sale.totalAmount,
+    createdAt: sale.createdAt,
+  }));
 
-  const salesResources: SalesOrderResource[] = salesOrders.map(
-    (salesOrder) => ({
-      id: salesOrder.id,
-      products: salesOrder.products.map((item) => ({
-        barcode: item.barcode,
+  return salesOrderResources;
+}
+
+export async function getSaleOrder(id: string): Promise<SalesOrderResource> {
+  let sale = await SalesOrder.findById(id).exec();
+  if (!sale) {
+    throw new Error("Sale not found.");
+  } else {
+    return {
+      id: sale.id,
+      products: sale.products.map((item) => ({
+        productId: item.productId.toString(),
         price: item.price,
         quantity: item.quantity,
       })),
-
-      saleDate: salesOrder.saleDate,
-      source: salesOrder.source,
-    })
-  );
-
-  return salesResources;
-}
-
-export async function getSalesOrder(id: string): Promise<SalesOrderResource> {
-  const salesOrder = await SalesOrder.findById(id).exec();
-  if (!salesOrder) {
-    const errorMsg = "Sales order not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+      totalAmount: sale.totalAmount,
+      createdAt: sale.createdAt,
+    };
   }
-  return {
-    id: salesOrder.id,
-    products: salesOrder.products.map((item) => ({
-      barcode: item.barcode,
-      price: item.price,
-      quantity: item.quantity,
-    })),
-
-    saleDate: salesOrder.saleDate,
-    source: salesOrder.source,
-  };
 }
 
-export async function createSalesOrder(
-  salesOrderResource: SalesOrderResource
+export async function createSaleOrder(
+  salesOrderResources: SalesOrderResource
 ): Promise<SalesOrderResource> {
-  const salesOrder = await SalesOrder.create({
-    products: salesOrderResource.products.map((item) => ({
-      barcode: item.barcode,
+  let sale = await SalesOrder.create({
+    products: salesOrderResources.products.map((item) => ({
+      productId: item.productId,
       price: item.price,
       quantity: item.quantity,
     })),
-    saleDate: salesOrderResource.saleDate,
-    source: "store",
+    totalAmount: salesOrderResources.totalAmount,
+    createdAt: salesOrderResources.createdAt,
   });
 
-  for (const item of salesOrderResource.products) {
-    try {
-      await decreaseStock(item.barcode, item.quantity);
-    } catch (error) {
-      // Wenn der Bestand für eines der Produkte nicht ausreicht, wird die Bestellung abgebrochen.
-      // Die Verkaufsbestellung wird in diesem Fall zurückgerollt.
-      await SalesOrder.findByIdAndDelete(salesOrder._id);
-      if (error instanceof Error) {
-        throw new Error(
-          `Failed to create sales order: ${error.message}. Sales order was rolled back.`
-        );
-      }
-    }
-  }
-
   return {
-    id: salesOrder._id.toString(),
-    products: salesOrder.products.map((item) => ({
-      barcode: item.barcode,
+    id: sale.id,
+    products: sale.products.map((item) => ({
+      productId: item.productId.toString(),
       price: item.price,
       quantity: item.quantity,
     })),
-    saleDate: salesOrder.saleDate,
-    source: salesOrder.source,
+    totalAmount: sale.totalAmount,
+    createdAt: sale.createdAt,
   };
 }
 
-export async function updateSalesOrder(
+export async function updateSale(
   salesOrderResource: SalesOrderResource
 ): Promise<SalesOrderResource> {
-  let salesOrder = await SalesOrder.findById(salesOrderResource.id);
-  if (!salesOrder) {
-    const errorMsg = "Sales order not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
-  }
+  let sale = await SalesOrder.findById(salesOrderResource.id);
 
-  if (salesOrderResource.products) {
-    const barcodes = salesOrderResource.products.map(
-      (product) => product.barcode
-    );
-
-    const products = await Product.find({ barcode: { $in: barcodes } });
-
-    if (products.length !== salesOrderResource.products.length) {
-      const missingBarcodes = barcodes.filter(
-        (barcode) => !products.some((product) => product.barcode === barcode)
-      );
-      const errorMsg = `One or more products do not exist. Missing barcodes: ${missingBarcodes.join(
-        ", "
-      )}`;
-      logger.error(errorMsg);
-      throw new Error(errorMsg);
-    }
-  }
-
-  // Überprüfen und Bestände aktualisieren, wenn sich die Menge geändert hat
-  if (salesOrderResource.products) {
-    for (const newProduct of salesOrderResource.products) {
-      const oldProduct = salesOrder.products.find(
-        (item) => item.barcode === newProduct.barcode
-      );
-
-      if (oldProduct && oldProduct.quantity !== newProduct.quantity) {
-        const quantityDifference = newProduct.quantity - oldProduct.quantity;
-
-        try {
-          if (quantityDifference > 0) {
-            // Menge hat zugenommen -> Lagerbestand muss verringert werden
-            await decreaseStock(newProduct.barcode, quantityDifference);
-          } else if (quantityDifference < 0) {
-            // Menge hat abgenommen -> Lagerbestand muss erhöht werden
-            await increaseStock(
-              newProduct.barcode,
-              Math.abs(quantityDifference)
-            );
-          }
-        } catch (error) {
-          const errorMsg = `Failed to update stock for product with barcode ${
-            newProduct.barcode
-          }: ${error instanceof Error ? error.message : "Unknown error"}`;
-          logger.error(errorMsg);
-          throw new Error(errorMsg);
-        }
-      }
-    }
-
-    // Update-Objekt für die Produkte aktualisieren
+  if (!sale) {
+    throw new Error("Sale not found.");
+  } else {
     const updateObject: {
       products?: {
-        barcode: string;
+        productId: string;
         price: number;
         quantity: number;
       }[];
-      saleDate?: Date;
-      source?: string;
+      totalAmount?: number;
+      createdAt?: Date;
     } = {};
-
-    updateObject.products = salesOrderResource.products.map((item) => ({
-      barcode: item.barcode,
-      price: item.price,
-      quantity: item.quantity,
-    }));
-
-    if (salesOrderResource.saleDate) {
-      updateObject.saleDate = new Date(salesOrderResource.saleDate);
+    
+    if (salesOrderResource.products) {
+      updateObject.products = salesOrderResource.products.map((item) => ({
+        productId: item.productId,
+        price: item.price,
+        quantity: item.quantity,
+      }));
     }
 
-    // Verkaufsbestellung aktualisieren
-    salesOrder = await SalesOrder.findByIdAndUpdate(
-      salesOrderResource.id,
-      updateObject,
-      { new: true }
+    if (salesOrderResource.createdAt) {
+      updateObject.createdAt = salesOrderResource.createdAt;
+    }
+
+    await SalesOrder.updateOne(
+      {
+        _id: salesOrderResource.id,
+      },
+      updateObject
     );
-
-    if (!salesOrder) {
-      const errorMsg = "Sales order not found after update.";
-      logger.error(errorMsg);
-      throw new Error(errorMsg);
-    }
+    sale = await SalesOrder.findById(salesOrderResource.id);
+    return {
+      id: sale!.id,
+      products: sale!.products.map((item) => ({
+        productId: item.productId.toString(),
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      totalAmount: sale!.totalAmount,
+      createdAt: sale!.createdAt,
+    };
   }
-
-  return {
-    id: salesOrder._id.toString(),
-    products: salesOrder.products.map((item) => ({
-      barcode: item.barcode,
-      price: item.price,
-      quantity: item.quantity,
-    })),
-    saleDate: salesOrder.saleDate,
-    source: salesOrder.source,
-  };
 }
 
 export async function deleteSalesOrder(id: string): Promise<void> {
-  const salesOrder = await SalesOrder.findById(id).exec();
-
+  let salesOrder = await SalesOrder.findById(id);
   if (!salesOrder) {
-    const errorMsg = "Sales order not found.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new Error("Sale not found.");
+  } else {
+    await SalesOrder.deleteOne({ _id: id });
   }
-
-  for (const item of salesOrder.products) {
-    try {
-      await increaseStock(item.barcode, item.quantity);
-    } catch (error) {
-      const errorMsg = `Failed to increase stock for product with barcode ${
-        item.barcode
-      }: ${error instanceof Error ? error.message : "Unknown error"}`;
-      logger.error(errorMsg);
-      throw new Error(errorMsg);
-    }
-  }
-
-  await SalesOrder.deleteOne({ _id: id });
 }

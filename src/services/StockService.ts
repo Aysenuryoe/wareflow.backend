@@ -1,24 +1,23 @@
 import { Product } from "../models/ProductModel";
 
-export async function increaseStock(barcode: string, quantity: number) {
-  const product = await Product.findOne({ barcode: barcode });
+export async function updateStockBySKU(sku: string, quantity: number) {
+  const product = await Product.findOne({ sku: sku });
   if (!product) {
     throw new Error("Product not found.");
   }
-  product.stock += quantity;
-  await product.save();
-  return product;
-}
 
-export async function decreaseStock(barcode: string, quantity: number) {
-  const product = await Product.findOne({ barcode: barcode });
-  if (!product) {
-    throw new Error("Product not found.");
+  const newStock = product.stock + quantity;
+
+  if (newStock < 0) {
+    throw new Error("Insufficient stock to complete this operation.");
   }
-  if (product.stock < quantity) {
-    throw new Error("Insufficient stock to decrease.");
-  }
-  product.stock -= quantity;
+
+  product.stock = newStock;
   await product.save();
-  return product;
+
+  return {
+    id: product._id.toString(),
+    sku: product.sku,
+    stock: product.stock,
+  };
 }

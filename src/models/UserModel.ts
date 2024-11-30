@@ -16,7 +16,7 @@ type UserModel = Model<IUser, {}, IUserMethods>;
 
 export const UserSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true, minlength: 8 },
   admin: { type: Boolean, default: false },
 });
 
