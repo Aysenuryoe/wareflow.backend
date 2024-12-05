@@ -1,6 +1,7 @@
 import { Product } from "../models/ProductModel";
 import { Return } from "../models/ReturnModel";
 import { ReturnResource } from "src/Resources";
+import { updateStock } from "./StockService";
 
 export async function getAllReturns(): Promise<ReturnResource[]> {
   const returns = await Return.find().exec();
@@ -52,14 +53,10 @@ export async function createReturn(
   });
 
   for (const product of returnResource.products) {
-    const productEntry = await Product.findById(product.productId);
-    if (!productEntry) {
-      throw new Error("Product not found.");
-    }
-
-    productEntry.stock += product.quantity;
-    await productEntry.save();
+    await updateStock(product.productId.toString(), product.quantity); 
   }
+
+  
 
   return {
     id: returnEntry._id.toString(),
