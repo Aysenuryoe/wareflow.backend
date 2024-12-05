@@ -11,7 +11,7 @@ const InventoryMovementSchema = new Schema<IInventoryMovement>({
   productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
   type: {
     type: String,
-    enum: ["Inbound", "Outbound", "Return", "Adjustment"], // Wareneingang, Verkauf, Rückgabe, Abschreibung
+    enum: ["Inbound", "Outbound", "Return", "Adjustment"], 
     required: true,
   },
   quantity: { type: Number, required: true },

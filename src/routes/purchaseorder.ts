@@ -66,6 +66,9 @@ purchaseRouter.post(
         if (!product.productId || typeof product.productId !== "string") {
           throw new Error("Each product must have a unique product ID.");
         }
+        if (!product.name || typeof product.name !== "string") {
+          throw new Error("Each product must have a valid name.");
+        }
         if (!Number.isInteger(product.quantity) || product.quantity < 1) {
           throw new Error(
             "Each product must have a valid quantity greater than 0."
@@ -113,6 +116,9 @@ purchaseRouter.put(
       for (const product of products) {
         if (!product.productId || typeof product.productId !== "string") {
           throw new Error("Each product must have a unique product ID.");
+        }
+        if (!product.name || typeof product.name !== "string") {
+          throw new Error("Each product must have a valid name.");
         }
         if (!Number.isInteger(product.quantity) || product.quantity < 1) {
           throw new Error(

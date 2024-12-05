@@ -18,7 +18,7 @@ export async function getAllPurchaseOrders(): Promise<PurchaseOrderResource[]> {
     })
   );
   return purchaseOrderResources;
-}
+} 
 
 export async function getPurchaseOrder(
   id: string

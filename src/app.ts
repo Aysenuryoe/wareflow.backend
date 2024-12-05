@@ -7,7 +7,7 @@ import userRouter from "./routes/user";
 import cookieParser from "cookie-parser";
 import salesRouter from "./routes/salesorder";
 import purchaseRouter from "./routes/purchaseorder";
-import stockRouter from "./routes/stock";
+
 import cors from "cors";
 import complaintRouter from "./routes/complaints";
 import goodsReceiptRouter from "./routes/goodsreceipt";
@@ -32,7 +32,7 @@ app.use("/api/sales", salesRouter);
 app.use("/api/purchase", purchaseRouter);
 app.use("/api/inventory", inventoryMovementRouter);
 app.use("/api/user", userRouter);
-app.use("/api/stock", stockRouter);
+
 app.use("/api/complaint", complaintRouter);
 app.use("/api/goodsreceipt", goodsReceiptRouter);
 app.use("/api/return", returnRouter);

@@ -1,7 +1,7 @@
 import { Product } from "../models/ProductModel";
 
-export async function updateStockBySKU(sku: string, quantity: number) {
-  const product = await Product.findOne({ sku: sku });
+export async function updateStock(id: string, quantity: number) {
+  const product = await Product.findById(id);
   if (!product) {
     throw new Error("Product not found.");
   }
@@ -17,7 +17,7 @@ export async function updateStockBySKU(sku: string, quantity: number) {
 
   return {
     id: product._id.toString(),
-    sku: product.sku,
+    name: product.name,
     stock: product.stock,
   };
 }

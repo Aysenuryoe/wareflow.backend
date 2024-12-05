@@ -21,7 +21,7 @@ export const PurchaseOrderSchema = new Schema<IPurchaseOrder>(
           ref: "Product",
           required: true,
         },
-        name: { type: String },
+        name: { type: String, required: true },
         quantity: { type: Number, required: true, min: 1 },
       },
     ],

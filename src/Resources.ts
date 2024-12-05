@@ -79,6 +79,7 @@ export type GoodsReceiptResource = {
   purchaseOrderId: string; 
   products: {
     productId: string;
+    name: string;
     receivedQuantity: number; 
     discrepancies?: string; 
   }[];

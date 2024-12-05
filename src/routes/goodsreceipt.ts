@@ -11,53 +11,35 @@ import { GoodsReceiptResource } from "../../src/Resources";
 
 const goodsReceiptRouter = express.Router();
 
-const validateRequest = (req: Request, res: Response, next: NextFunction) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
-
-const validateProducts = body("products")
-  .isArray({ min: 1 })
-  .withMessage("Products must be a non-empty array.")
-  .custom((products) => {
-    for (const product of products) {
-      if (!product.productId || typeof product.productId !== "string") {
-        throw new Error("Each product must have a valid product ID.");
-      }
-      if (
-        !Number.isInteger(product.receivedQuantity) ||
-        product.receivedQuantity < 1
-      ) {
-        throw new Error(
-          "Each product must have a valid receivedQuantity greater than 0."
-        );
-      }
-    }
-    return true;
-  });
-
 goodsReceiptRouter.get("/all", async (req, res, next) => {
   try {
-    const goodsReceipts = await getAllGoodsReceipts();
-    res.json(goodsReceipts);
+    const goodsreceipt = await getAllGoodsReceipts();
+    res.send(goodsreceipt);
   } catch (err) {
-    next(err);
+    if (err instanceof Error) {
+      res.status(404).send({ error: err.message });
+      next(err);
+    }
   }
 });
 
 goodsReceiptRouter.get(
   "/:id",
   param("id").isMongoId(),
-  validateRequest,
-  async (req, res, next) => {
+
+  async (req: Request, res: Response, next: NextFunction) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
-      const goodsReceipt = await getGoodsReceipt(req.params.id);
-      res.json(goodsReceipt);
+      const goods = await getGoodsReceipt(req.params.id);
+      res.send(goods);
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
@@ -68,18 +50,25 @@ goodsReceiptRouter.post(
     .isString()
     .isLength({ min: 24, max: 24 })
     .withMessage("PurchaseOrder ID must be a valid MongoDB ObjectId."),
-  validateProducts,
+    body("products").isArray(),
   body("receivedDate").isISO8601(),
   body("status").isIn(["Pending", "Completed", "Partial"]),
   body("remarks").optional().isString(),
-  validateRequest,
+
   async (req, res, next) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
-      const goodsReceiptData = matchedData(req) as GoodsReceiptResource;
-      const newGoodsReceipt = await createGoodsReceipt(goodsReceiptData);
+      const goodsData = req.body;
+      const newGoodsReceipt = await createGoodsReceipt(goodsData);
       res.status(201).json(newGoodsReceipt);
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
@@ -92,23 +81,28 @@ goodsReceiptRouter.put(
     .isString()
     .isLength({ min: 24, max: 24 })
     .withMessage("PurchaseOrder ID must be a valid MongoDB ObjectId."),
-  validateProducts.optional(),
+    body("products").isArray(),
   body("receivedDate").optional().isISO8601(),
   body("status").optional().isIn(["Pending", "Completed", "Partial"]),
   body("remarks").optional().isString(),
-  validateRequest,
-  async (req, res, next) => {
+
+  async (req: Request, res: Response, next: NextFunction) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
-      const goodsReceiptResource: GoodsReceiptResource = {
+      const goodsResource = {
         id: req.params.id,
         ...req.body,
       };
-      const updatedGoodsReceipt = await updateGoodsReceipt(
-        goodsReceiptResource
-      );
-      res.json(updatedGoodsReceipt);
+      const updateGoods = await updateGoodsReceipt(goodsResource);
+      res.send(updateGoods);
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
@@ -116,13 +110,21 @@ goodsReceiptRouter.put(
 goodsReceiptRouter.delete(
   "/:id",
   param("id").isMongoId(),
-  validateRequest,
-  async (req, res, next) => {
+
+  async (req: Request, res: Response, next: NextFunction) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
-      await deleteGoodsReceipt(req.params.id);
+      const id = req.params.id;
+      await deleteGoodsReceipt(id);
       res.status(204).end();
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
