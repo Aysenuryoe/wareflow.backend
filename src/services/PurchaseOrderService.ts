@@ -8,6 +8,7 @@ export async function getAllPurchaseOrders(): Promise<PurchaseOrderResource[]> {
       id: purchase.id,
       products: purchase.products.map((item) => ({
         productId: item.productId,
+        name: item.name,
         quantity: item.quantity,
       })),
       supplier: purchase.supplier,
@@ -30,6 +31,7 @@ export async function getPurchaseOrder(
       id: purchase.id,
       products: purchase.products.map((item) => ({
         productId: item.productId.toString(),
+        name: item.name,
         quantity: item.quantity,
       })),
       supplier: purchase.supplier,
@@ -46,6 +48,7 @@ export async function createPurchaseOrder(
   let purchase = await PurchaseOrder.create({
     products: purchaseOrderResource.products.map((item) => ({
       productId: item.productId,
+      name: item.name,
       quantity: item.quantity,
     })),
     supplier: purchaseOrderResource.supplier,
@@ -58,6 +61,7 @@ export async function createPurchaseOrder(
     id: purchase.id,
     products: purchase.products.map((item) => ({
       productId: item.productId,
+      name: item.name,
       quantity: item.quantity,
     })),
     supplier: purchase.supplier,
@@ -78,17 +82,19 @@ export async function updatePurchaseOrder(
     const updateObject: {
       products?: {
         productId: string;
+        name: string;
         quantity: number;
       }[];
       supplier?: string;
       status?: string;
       orderDate?: Date;
-      receivedDate?: Date;
+    
     } = {};
 
     if (purchaseOrderResource.products) {
       updateObject.products = purchaseOrderResource.products.map((item) => ({
         productId: item.productId,
+        name: item.name,
         quantity: item.quantity,
       }));
     }
@@ -104,10 +110,6 @@ export async function updatePurchaseOrder(
       updateObject.orderDate = purchaseOrderResource.orderDate;
     }
 
-    if (purchaseOrderResource.receivedDate) {
-      updateObject.receivedDate = purchaseOrderResource.receivedDate;
-    }
-
     await PurchaseOrder.updateOne(
       {
         _id: purchaseOrderResource.id,
@@ -119,6 +121,7 @@ export async function updatePurchaseOrder(
       id: purchase!.id,
       products: purchase!.products.map((item) => ({
         productId: item.productId.toString(),
+        name: item.name,
         quantity: item.quantity,
       })),
       supplier: purchase!.supplier,

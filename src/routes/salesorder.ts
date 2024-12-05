@@ -54,26 +54,10 @@ salesRouter.post(
   body("products")
     .isArray({ min: 1 })
     .withMessage("Products must be a non-empty array.")
-    .custom((products) => {
-      for (const product of products) {
-        if (!product.productId || typeof product.productId !== "string") {
-          throw new Error("Each product must have a valid SKU.");
-        }
-        if (typeof product.price !== "number" || product.price < 1) {
-          throw new Error(
-            "Each product must have a valid price greater than or equal to 1."
-          );
-        }
-        if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-          throw new Error(
-            "Each product must have a valid quantity greater than 0."
-          );
-        }
-      }
-      return true;
-    }),
-  body("totalAmount").isFloat(),
-  body("createdAt").isISO8601(),
+   ,
+   body("totalAmount"),
+   body("createdAt"),
+
   // authentication,
   // authorizeRole(["a"]),
   async (req, res, next) => {
@@ -100,26 +84,9 @@ salesRouter.put(
   body("products")
     .isArray({ min: 1 })
     .withMessage("Products must be a non-empty array.")
-    .custom((products) => {
-      for (const product of products) {
-        if (!product.productId || typeof product.productId !== "string") {
-          throw new Error("Each product must have a valid SKU.");
-        }
-        if (typeof product.price !== "number" || product.price < 1) {
-          throw new Error(
-            "Each product must have a valid price greater than or equal to 1."
-          );
-        }
-        if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-          throw new Error(
-            "Each product must have a valid quantity greater than 0."
-          );
-        }
-      }
-      return true;
-    }),
-  body("totalAmount").isFloat(),
-  body("createdAt").isISO8601(),
+   ,
+   body("totalAmount"),
+   body("createdAt"),
   // authentication,
   // authorizeRole(["a"]),
   async (req, res, next) => {

@@ -51,17 +51,28 @@ productRouter.get(
 productRouter.post(
   "/",
   body("name").isString().isLength({ min: 3, max: 100 }),
-  body("size").isString().isIn([  "XS", "S", "M", "L", "XL",        
-    "36", "37", "38", "39", "40",     
-    "41", "42", "43", "44", "NOSIZE"]),
+  body("size")
+    .isString()
+    .isIn([
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42",
+      "43",
+      "44",
+      "NOSIZE",
+    ]),
   body("price").isFloat({ min: 1 }),
   body("color").isString(),
-  body("sku")
-    .isString()
-    .isLength({ min: 6, max: 12 })
-    .matches(/^[a-zA-Z0-9_-]+$/),
   body("stock").isInt({ min: 0 }),
-  body("minStock").isFloat(),
+  body("minStock").optional().isFloat(),
   // authentication,
   // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
@@ -86,17 +97,29 @@ productRouter.put(
   "/:id",
   param("id").isMongoId(),
   body("name").isString().isLength({ min: 3, max: 100 }),
-  body("size").isString().isIn([  "XS", "S", "M", "L", "XL",        
-    "36", "37", "38", "39", "40",     
-    "41", "42", "43", "44", "NOSIZE"]),
+  body("size")
+    .isString()
+    .isIn([
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42",
+      "43",
+      "44",
+      "NOSIZE",
+    ]),
   body("price").isFloat({ min: 1 }),
   body("color").isString(),
-  body("sku")
-    .isString()
-    .isLength({ min: 6, max: 12 })
-    .matches(/^[a-zA-Z0-9_-]+$/),
+
   body("stock").isInt({ min: 0 }),
-  body("minStock").isFloat(),
+  body("minStock").optional().isFloat(),
   // authentication,
   // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {

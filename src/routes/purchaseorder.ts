@@ -122,6 +122,7 @@ purchaseRouter.put(
       }
       return true;
     }),
+
   body("supplier").isString(),
   body("status").isIn(["Ordered", "Pending", "Arrived", "Cancelled"]),
   body("orderDate").isISO8601(),

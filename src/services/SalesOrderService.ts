@@ -8,6 +8,7 @@ export async function getAllSales(): Promise<SalesOrderResource[]> {
     id: sale.id,
     products: sale.products.map((item) => ({
       productId: item.productId.toString(),
+      name: item.name,
       price: item.price,
       quantity: item.quantity,
     })),
@@ -27,6 +28,7 @@ export async function getSaleOrder(id: string): Promise<SalesOrderResource> {
       id: sale.id,
       products: sale.products.map((item) => ({
         productId: item.productId.toString(),
+        name: item.name,
         price: item.price,
         quantity: item.quantity,
       })),
@@ -42,6 +44,7 @@ export async function createSaleOrder(
   let sale = await SalesOrder.create({
     products: salesOrderResources.products.map((item) => ({
       productId: item.productId,
+      name: item.name,
       price: item.price,
       quantity: item.quantity,
     })),
@@ -53,6 +56,7 @@ export async function createSaleOrder(
     id: sale.id,
     products: sale.products.map((item) => ({
       productId: item.productId.toString(),
+      name: item.name,
       price: item.price,
       quantity: item.quantity,
     })),
@@ -72,6 +76,7 @@ export async function updateSale(
     const updateObject: {
       products?: {
         productId: string;
+        name: string;
         price: number;
         quantity: number;
       }[];
@@ -82,6 +87,7 @@ export async function updateSale(
     if (salesOrderResource.products) {
       updateObject.products = salesOrderResource.products.map((item) => ({
         productId: item.productId,
+        name: item.name,
         price: item.price,
         quantity: item.quantity,
       }));
@@ -102,6 +108,7 @@ export async function updateSale(
       id: sale!.id,
       products: sale!.products.map((item) => ({
         productId: item.productId.toString(),
+        name: item.name,
         price: item.price,
         quantity: item.quantity,
       })),

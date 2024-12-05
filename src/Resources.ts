@@ -4,9 +4,9 @@ export type ProductResource = {
   size: string;
   price: number;
   color: string,
-  sku: string,
+  sku?: string,
   stock: number;
-  minStock: number;
+  minStock?: number;
   description?: string;
 };
 
@@ -14,6 +14,7 @@ export type PurchaseOrderResource = {
   id?: string;
   products: {
     productId: string;
+    name: string;
     quantity: number;
   }[];
   supplier: string;
@@ -27,6 +28,7 @@ export type SalesOrderResource = {
   id?: string;
   products: {
     productId: string;
+    name: string;
     price: number;
     quantity: number;
   }[];

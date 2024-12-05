@@ -4,6 +4,7 @@ import mongoose, { model, Schema, Types } from "mongoose";
 export interface ISalesOrder {
   products: {
     productId: string;
+    name: string;
     price: number;
     quantity: number;
   }[];
@@ -20,6 +21,7 @@ const SalesOrderSchema = new Schema<ISalesOrder>(
           ref: "Product",
           required: true,
         },
+        name: { type: String},
         price: { type: Number, required: true, min: 1 },
         quantity: { type: Number, required: true, min: 1 },
       },
