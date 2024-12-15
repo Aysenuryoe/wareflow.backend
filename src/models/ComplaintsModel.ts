@@ -1,22 +1,29 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, Types, model } from "mongoose";
 
 export interface IComplaint {
-  referenceId: mongoose.Types.ObjectId;
-  referenceType: "GoodsReceipt" | "Sales" | "PurchaseOrder";
-  reason: string;
-  quantity: number;
+  referenceType: "GoodsReceipt" | "Sales";
+  products: {
+    productId: Types.ObjectId;
+    quantity: number;
+    reason: string;
+  }[];
   status: "Open" | "Resolved";
 }
 
 const ComplaintSchema = new Schema<IComplaint>({
-  referenceId: { type: Schema.Types.ObjectId, required: true },
+
   referenceType: {
     type: String,
-    enum: ["GoodsReceipt", "Sales", "PurchaseOrder"],
+    enum: ["GoodsReceipt", "Sales"],
     required: true,
   }, 
-  reason: { type: String, required: true },
-  quantity: { type: Number, required: true },
+  products: [
+    {
+      productId: { type: Schema.Types.ObjectId, ref: "Product", required: true }, 
+      quantity: { type: Number, required: true, min: 1 }, 
+      reason: { type: String, required: true }, 
+    },
+  ],
   status: { type: String, enum: ["Open", "Resolved"], default: "Open" },
 });
 

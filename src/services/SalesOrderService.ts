@@ -1,6 +1,8 @@
 import { SalesOrder } from "../models/SalesOrderModel";
 import { SalesOrderResource } from "src/Resources";
+import { updateStock } from "./StockService";
 
+import { InventoryMovement } from "src/models/IventoryMovementModel";
 
 export async function getAllSales(): Promise<SalesOrderResource[]> {
   let sales = await SalesOrder.find().exec();
@@ -51,6 +53,17 @@ export async function createSaleOrder(
     totalAmount: salesOrderResources.totalAmount,
     createdAt: salesOrderResources.createdAt,
   });
+
+  for (const item of salesOrderResources.products) {
+    await updateStock(item.productId, -item.quantity);
+    const inventoryMovement = new InventoryMovement({
+      productId: item.productId,
+      type: "Outbound",
+      quantity: item.quantity,
+      date: sale.createdAt,
+    });
+    await inventoryMovement.save();
+  }
 
   return {
     id: sale.id,

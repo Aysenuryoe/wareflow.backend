@@ -56,7 +56,7 @@ salesRouter.post(
     .withMessage("Products must be a non-empty array.")
    ,
    body("totalAmount"),
-   body("createdAt"),
+   body("createdAt").optional(),
 
   // authentication,
   // authorizeRole(["a"]),
@@ -86,7 +86,7 @@ salesRouter.put(
     .withMessage("Products must be a non-empty array.")
    ,
    body("totalAmount"),
-   body("createdAt"),
+   body("createdAt").optional(),
   // authentication,
   // authorizeRole(["a"]),
   async (req, res, next) => {

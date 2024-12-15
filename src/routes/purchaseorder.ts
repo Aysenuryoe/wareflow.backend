@@ -108,7 +108,6 @@ purchaseRouter.put(
   body("products")
     .isArray()
     .notEmpty()
-    .withMessage("Products must be a non-empty array.")
     .custom((products) => {
       if (products.length === 0) {
         throw new Error("Products must be a non-empty array.");

@@ -1,3 +1,4 @@
+import productRouter from "src/routes/product";
 import { PurchaseOrder } from "../models/PurchaseOrderModel";
 import { PurchaseOrderResource } from "src/Resources";
 
@@ -9,6 +10,7 @@ export async function getAllPurchaseOrders(): Promise<PurchaseOrderResource[]> {
       products: purchase.products.map((item) => ({
         productId: item.productId,
         name: item.name,
+        size: item.size,
         quantity: item.quantity,
       })),
       supplier: purchase.supplier,
@@ -18,7 +20,7 @@ export async function getAllPurchaseOrders(): Promise<PurchaseOrderResource[]> {
     })
   );
   return purchaseOrderResources;
-} 
+}
 
 export async function getPurchaseOrder(
   id: string
@@ -32,6 +34,7 @@ export async function getPurchaseOrder(
       products: purchase.products.map((item) => ({
         productId: item.productId.toString(),
         name: item.name,
+        size: item.size,
         quantity: item.quantity,
       })),
       supplier: purchase.supplier,
@@ -49,6 +52,7 @@ export async function createPurchaseOrder(
     products: purchaseOrderResource.products.map((item) => ({
       productId: item.productId,
       name: item.name,
+      size: item.size,
       quantity: item.quantity,
     })),
     supplier: purchaseOrderResource.supplier,
@@ -62,6 +66,7 @@ export async function createPurchaseOrder(
     products: purchase.products.map((item) => ({
       productId: item.productId,
       name: item.name,
+      size: item.size,
       quantity: item.quantity,
     })),
     supplier: purchase.supplier,
@@ -83,18 +88,20 @@ export async function updatePurchaseOrder(
       products?: {
         productId: string;
         name: string;
+        size: string;
         quantity: number;
       }[];
       supplier?: string;
       status?: string;
       orderDate?: Date;
-    
+      receivedDate?: Date;
     } = {};
 
     if (purchaseOrderResource.products) {
       updateObject.products = purchaseOrderResource.products.map((item) => ({
         productId: item.productId,
         name: item.name,
+        size: item.size,
         quantity: item.quantity,
       }));
     }
@@ -110,6 +117,10 @@ export async function updatePurchaseOrder(
       updateObject.orderDate = purchaseOrderResource.orderDate;
     }
 
+    if (purchaseOrderResource.receivedDate) {
+      updateObject.receivedDate = purchaseOrderResource.receivedDate;
+    }
+
     await PurchaseOrder.updateOne(
       {
         _id: purchaseOrderResource.id,
@@ -122,6 +133,7 @@ export async function updatePurchaseOrder(
       products: purchase!.products.map((item) => ({
         productId: item.productId.toString(),
         name: item.name,
+        size: item.size,
         quantity: item.quantity,
       })),
       supplier: purchase!.supplier,

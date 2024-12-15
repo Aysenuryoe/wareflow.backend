@@ -15,6 +15,7 @@ export type PurchaseOrderResource = {
   products: {
     productId: string;
     name: string;
+    size: string;
     quantity: number;
   }[];
   supplier: string;
@@ -63,7 +64,6 @@ export type LoginResource = {
 
 export type ReturnResource = {
   id?: string;
-  salesId: string;
   products: {
       productId: string;
       quantity: number;
@@ -71,7 +71,7 @@ export type ReturnResource = {
     }[];
     
   status: string;
-  createdAt: Date
+  createdAt?: Date
 };
 
 export type GoodsReceiptResource = {
@@ -80,6 +80,7 @@ export type GoodsReceiptResource = {
   products: {
     productId: string;
     name: string;
+    size: string;
     receivedQuantity: number; 
     discrepancies?: string; 
   }[];
@@ -90,9 +91,11 @@ export type GoodsReceiptResource = {
 
 export type ComplaintsResource = {
   id?: string;
-  referenceId: string;
   referenceType: "GoodsReceipt" | "Sales" | "PurchaseOrder";
-  reason: string;
-  quantity: number;
+  products: {
+    productId: string;
+    quantity: number;
+    reason: string;
+  }[];
   status: "Open" | "Resolved";
 }

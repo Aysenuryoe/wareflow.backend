@@ -16,7 +16,7 @@ export async function updateStock(id: string, quantity: number) {
   await product.save();
 
   return {
-    id: product._id.toString(),
+    id: product.id.toString(),
     name: product.name,
     stock: product.stock,
   };

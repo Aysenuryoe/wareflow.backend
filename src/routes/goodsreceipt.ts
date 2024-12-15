@@ -50,7 +50,7 @@ goodsReceiptRouter.post(
     .isString()
     .isLength({ min: 24, max: 24 })
     .withMessage("PurchaseOrder ID must be a valid MongoDB ObjectId."),
-    body("products").isArray(),
+  body("products").isArray(),
   body("receivedDate").isISO8601(),
   body("status").isIn(["Pending", "Completed", "Partial"]),
   body("remarks").optional().isString(),
@@ -81,7 +81,7 @@ goodsReceiptRouter.put(
     .isString()
     .isLength({ min: 24, max: 24 })
     .withMessage("PurchaseOrder ID must be a valid MongoDB ObjectId."),
-    body("products").isArray(),
+  body("products").isArray(),
   body("receivedDate").optional().isISO8601(),
   body("status").optional().isIn(["Pending", "Completed", "Partial"]),
   body("remarks").optional().isString(),

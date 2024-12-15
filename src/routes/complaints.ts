@@ -11,55 +11,58 @@ import { ComplaintsResource } from "../../src/Resources";
 
 const complaintRouter = express.Router();
 
-const validateRequest = (req: Request, res: Response, next: NextFunction) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
-
 complaintRouter.get("/all", async (req, res, next) => {
   try {
     const complaints = await getAllComplaints();
     res.json(complaints);
   } catch (err) {
-    next(err);
+    if (err instanceof Error) {
+      res.status(404).send({ error: err.message });
+      next(err);
+    }
   }
 });
 
 complaintRouter.get(
   "/:id",
-  param("id").isMongoId().withMessage("Invalid ID format."),
-  validateRequest,
-  async (req, res, next) => {
+  param("id").isMongoId(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
       const complaint = await getComplaint(req.params.id);
       res.json(complaint);
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
 
 complaintRouter.post(
   "/",
-  body("referenceId")
-    .isString()
-    .isLength({ min: 24, max: 24 })
-    .withMessage("Reference ID must be a valid MongoDB ObjectId."),
+
   body("referenceType").isIn(["GoodsReceipt", "Sales"]),
-  body("reason").isString().isLength({ min: 5, max: 500 }),
-  body("quantity").isInt({ min: 1 }),
+  body("products").isArray(),
   body("status").isIn(["Open", "Resolved"]),
-  validateRequest,
   async (req, res, next) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
       const complaintData = matchedData(req) as ComplaintsResource;
       const newComplaint = await createComplaint(complaintData);
       res.status(201).json(newComplaint);
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
@@ -67,17 +70,14 @@ complaintRouter.post(
 complaintRouter.put(
   "/:id",
   param("id").isMongoId().withMessage("Invalid ID format."),
-  body("referenceId")
-    .optional()
-    .isString()
-    .isLength({ min: 24, max: 24 })
-    .withMessage("Reference ID must be a valid MongoDB ObjectId."),
   body("referenceType").optional().isIn(["GoodsReceipt", "Sales"]),
-  body("reason").optional().isString().isLength({ min: 5, max: 500 }),
-  body("quantity").optional().isInt({ min: 1 }),
+  body("products").isArray(),
   body("status").optional().isIn(["Open", "Resolved"]),
-  validateRequest,
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
       const complaintResource: ComplaintsResource = {
         id: req.params.id,
@@ -86,7 +86,10 @@ complaintRouter.put(
       const updatedComplaint = await updateComplaint(complaintResource);
       res.json(updatedComplaint);
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
@@ -94,13 +97,20 @@ complaintRouter.put(
 complaintRouter.delete(
   "/:id",
   param("id").isMongoId().withMessage("Invalid ID format."),
-  validateRequest,
-  async (req, res, next) => {
+
+  async (req: Request, res: Response, next: NextFunction) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
       await deleteComplaint(req.params.id);
       res.status(204).end();
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );

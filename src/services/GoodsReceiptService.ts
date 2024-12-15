@@ -2,6 +2,7 @@ import { GoodsReceipt } from "../models/GoodsReceiptModel";
 import { GoodsReceiptResource } from "../../src/Resources";
 import { updateStock } from "./StockService";
 import { Product } from "../models/ProductModel";
+import { InventoryMovement } from "src/models/IventoryMovementModel";
 
 export async function getAllGoodsReceipts(): Promise<GoodsReceiptResource[]> {
   const goodsReceipts = await GoodsReceipt.find().exec();
@@ -12,6 +13,7 @@ export async function getAllGoodsReceipts(): Promise<GoodsReceiptResource[]> {
     products: receipt.products.map((product) => ({
       productId: product.productId.toString(),
       name: product.name,
+      size: product.size,
       receivedQuantity: product.receivedQuantity,
       discrepancies: product.discrepancies,
     })),
@@ -38,6 +40,7 @@ export async function getGoodsReceipt(
     products: goodsReceipt.products.map((product) => ({
       productId: product.productId.toString(),
       name: product.name,
+      size: product.size,
       receivedQuantity: product.receivedQuantity,
       discrepancies: product.discrepancies,
     })),
@@ -55,6 +58,7 @@ export async function createGoodsReceipt(
     products: goodsReceiptResource.products.map((product) => ({
       productId: product.productId,
       name: product.name,
+      size: product.size,
       receivedQuantity: product.receivedQuantity,
       discrepancies: product.discrepancies,
     })),
@@ -63,12 +67,26 @@ export async function createGoodsReceipt(
     remarks: goodsReceiptResource.remarks,
   });
 
+  for (const item of goodsReceiptResource.products) {
+    const inventoryMovement = new InventoryMovement({
+      productId: item.productId,
+      type: "Inbound",
+      quantity: item.receivedQuantity,
+      date: goodsReceipt.receivedDate,
+    });
+    await inventoryMovement.save();
+    if (goodsReceipt.status === "Completed") {
+      await updateStock(item.productId, item.receivedQuantity);
+    }
+  }
+
   return {
     id: goodsReceipt._id.toString(),
     purchaseOrderId: goodsReceipt.purchaseOrderId.toString(),
     products: goodsReceipt.products.map((product) => ({
       productId: product.productId.toString(),
       name: product.name,
+      size: product.size,
       receivedQuantity: product.receivedQuantity,
       discrepancies: product.discrepancies,
     })),
@@ -93,11 +111,9 @@ export async function updateGoodsReceipt(
   ) {
     for (const item of goodsReceiptResource.products) {
       const product = await Product.findById(item.productId);
-
       if (!product) {
         throw new Error(`Product not found for ID: ${item.productId}`);
       }
-
       await updateStock(item.productId, item.receivedQuantity);
     }
   }
@@ -108,6 +124,7 @@ export async function updateGoodsReceipt(
     updateObject.products = goodsReceiptResource.products.map((product) => ({
       productId: product.productId,
       name: product.name,
+      size: product.size,
       receivedQuantity: product.receivedQuantity,
       discrepancies: product.discrepancies,
     }));
@@ -131,6 +148,7 @@ export async function updateGoodsReceipt(
     products: goodsReceipt!.products.map((product) => ({
       productId: product.productId.toString(),
       name: product.name,
+      size: product.size,
       receivedQuantity: product.receivedQuantity,
       discrepancies: product.discrepancies,
     })),

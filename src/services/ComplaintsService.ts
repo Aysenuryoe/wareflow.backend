@@ -6,10 +6,12 @@ export async function getAllComplaints(): Promise<ComplaintsResource[]> {
 
   return complaints.map((complaint) => ({
     id: complaint._id.toString(),
-    referenceId: complaint.referenceId.toString(),
     referenceType: complaint.referenceType,
-    reason: complaint.reason,
-    quantity: complaint.quantity,
+    products: complaint.products.map((item) => ({
+      productId: item.productId.toString(),
+      quantity: item.quantity,
+      reason: item.reason,
+    })),
     status: complaint.status,
   }));
 }
@@ -23,29 +25,35 @@ export async function getComplaint(id: string): Promise<ComplaintsResource> {
 
   return {
     id: complaint._id.toString(),
-    referenceId: complaint.referenceId.toString(),
     referenceType: complaint.referenceType,
-    reason: complaint.reason,
-    quantity: complaint.quantity,
+    products: complaint.products.map((item) => ({
+      productId: item.productId.toString(),
+      quantity: item.quantity,
+      reason: item.reason,
+    })),
     status: complaint.status,
   };
 }
 
 export async function createComplaint(complaintResource: ComplaintsResource): Promise<ComplaintsResource> {
     const complaint = await Complaint.create({
-      referenceId: complaintResource.referenceId,
       referenceType: complaintResource.referenceType,
-      reason: complaintResource.reason,
-      quantity: complaintResource.quantity,
-      status: "Open",
+      products: complaintResource.products.map((item) => ({
+        productId: item.productId.toString(),
+        quantity: item.quantity,
+        reason: item.reason,
+      })),
+      status: complaintResource.status,
     });
   
     return {
       id: complaint._id.toString(),
-      referenceId: complaint.referenceId.toString(),
       referenceType: complaint.referenceType,
-      reason: complaint.reason,
-      quantity: complaint.quantity,
+      products: complaint.products.map((item) => ({
+        productId: item.productId.toString(),
+        quantity: item.quantity,
+        reason: item.reason,
+      })),
       status: complaint.status,
     };
   }
@@ -58,36 +66,49 @@ export async function createComplaint(complaintResource: ComplaintsResource): Pr
     }
   
     const updateObject : {
-        referenceId?:string;
       referenceType?: string;
-      reason?: string;
-      quantity?: number;
+      products?: {
+        productId: string;
+        quantity: number;
+        reason: string;
+      }[];
       status?: string;
     } = {};
 
     
-    if (complaintResource.reason) {
-      updateObject.reason = complaintResource.reason;
+    if (complaintResource.referenceType) {
+      updateObject.referenceType = complaintResource.referenceType;
     }
-    if (complaintResource.quantity) {
-        updateObject.quantity = complaintResource.quantity;
+
+    if (complaintResource.products) {
+      updateObject.products = complaintResource.products.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        reason: item.reason,
+      }));
     }
+
     if (complaintResource.status) {
-        updateObject.status = complaintResource.status;
+      updateObject.status = complaintResource.status;
     }
   
     await Complaint.updateOne({
         _id: complaintResource.id
     },updateObject);
-    complaint = await Complaint.findById(complaintResource.id);
+     let updatedComplaint = await Complaint.findById(complaintResource.id);
+    if (!updatedComplaint) {
+      throw new Error("Complaint not found.");
+    }
    
     return {
-      id: complaint!._id.toString(),
-      referenceId: complaint!.referenceId.toString(),
-      referenceType: complaint!.referenceType,
-      reason: complaint!.reason,
-      quantity: complaint!.quantity,
-      status: complaint!.status,
+      id: complaint._id.toString(),
+      referenceType: complaint.referenceType,
+      products: complaint!.products.map((item) => ({
+        productId: item.productId.toString(),
+        quantity: item.quantity,
+        reason: item.reason,
+      })),
+      status: complaint.status,
     };
   }
   

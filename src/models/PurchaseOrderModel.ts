@@ -4,6 +4,7 @@ export interface IPurchaseOrder {
   products: {
     productId: string;
     name: string;
+    size: string;
     quantity: number;
   }[];
   supplier: string;
@@ -22,6 +23,7 @@ export const PurchaseOrderSchema = new Schema<IPurchaseOrder>(
           required: true,
         },
         name: { type: String, required: true },
+        size: { type: String, required: true },
         quantity: { type: Number, required: true, min: 1 },
       },
     ],
@@ -39,12 +41,7 @@ export const PurchaseOrderSchema = new Schema<IPurchaseOrder>(
   { timestamps: true }
 );
 
-/*
-wenn der receivedDate gesetztt wird soll der Satus
-auf Arrived aktualisiert werden
-wenn orderDate gesetzt ist dann Status 
-auf Pending setzen
-*/
+
 PurchaseOrderSchema.pre("save", function (next) {
   if (this.receivedDate) {
     this.status = "Arrived";

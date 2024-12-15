@@ -5,6 +5,7 @@ export interface IGoodsReceipt {
   products: {
     productId: string;
     name: string;
+    size: string;
     receivedQuantity: number;
     discrepancies?: string;
   }[];
@@ -28,6 +29,7 @@ const GoodsReceiptSchema = new Schema<IGoodsReceipt>(
           required: true,
         },
         name: { type: String, required: true },
+        size: { type: String, required: true },
         receivedQuantity: { type: Number, required: true, min: 0 },
         discrepancies: { type: String },
       },

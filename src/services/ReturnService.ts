@@ -2,13 +2,14 @@ import { Product } from "../models/ProductModel";
 import { Return } from "../models/ReturnModel";
 import { ReturnResource } from "src/Resources";
 import { updateStock } from "./StockService";
+import { InventoryMovement } from "src/models/IventoryMovementModel";
 
 export async function getAllReturns(): Promise<ReturnResource[]> {
   const returns = await Return.find().exec();
 
   return returns.map((returnEntry) => ({
     id: returnEntry._id.toString(),
-    salesId: returnEntry.salesId.toString(),
+
     products: returnEntry.products.map((item) => ({
       productId: item.productId.toString(),
       quantity: item.quantity,
@@ -27,7 +28,6 @@ export async function getReturn(id: string): Promise<ReturnResource> {
 
   return {
     id: returnEntry._id.toString(),
-    salesId: returnEntry.salesId.toString(),
     products: returnEntry.products.map((item) => ({
       productId: item.productId.toString(),
       quantity: item.quantity,
@@ -42,7 +42,6 @@ export async function createReturn(
   returnResource: ReturnResource
 ): Promise<ReturnResource> {
   const returnEntry = await Return.create({
-    salesId: returnResource.salesId,
     products: returnResource.products.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
@@ -52,15 +51,21 @@ export async function createReturn(
     createdAt: new Date(),
   });
 
-  for (const product of returnResource.products) {
-    await updateStock(product.productId.toString(), product.quantity); 
-  }
+  for (const item of returnResource.products) {
+    await updateStock(item.productId, item.quantity);
+    const inventoryMovement = new InventoryMovement({
+      productId: item.productId,
+      type: "Return",
+      quantity: item.quantity,
+      date: returnEntry.createdAt,
+   
+    });
+    await inventoryMovement.save();
 
-  
+  }
 
   return {
     id: returnEntry._id.toString(),
-    salesId: returnEntry.salesId.toString(),
     products: returnEntry.products.map((item) => ({
       productId: item.productId.toString(),
       quantity: item.quantity,
@@ -114,7 +119,7 @@ export async function updateReturn(
 
     return {
       id: updatedReturn._id.toString(),
-      salesId: updatedReturn.salesId.toString(),
+
       products: updatedReturn.products.map((item) => ({
         productId: item.productId.toString(),
         quantity: item.quantity,

@@ -11,40 +11,6 @@ import { ReturnResource } from "../../src/Resources";
 
 const returnRouter = express.Router();
 
-const validateRequest = (req: Request, res: Response, next: NextFunction) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
-
-const validateProducts = body("products")
-  .isArray({ min: 1 })
-  .withMessage("Products must be a non-empty array.")
-  .custom((products) => {
-    for (const product of products) {
-      if (!product.productId || typeof product.productId !== "string") {
-        throw new Error("Each product must have a valid product ID.");
-      }
-      if (!Number.isInteger(product.quantity) || product.quantity < 1) {
-        throw new Error(
-          "Each product must have a valid quantity greater than 0."
-        );
-      }
-      if (
-        !product.reason ||
-        typeof product.reason !== "string" ||
-        product.reason.length < 5
-      ) {
-        throw new Error(
-          "Each product must have a valid reason (minimum 5 characters)."
-        );
-      }
-    }
-    return true;
-  });
-
 returnRouter.get("/all", async (req, res, next) => {
   try {
     const returns = await getAllReturns();
@@ -57,30 +23,43 @@ returnRouter.get("/all", async (req, res, next) => {
 returnRouter.get(
   "/:id",
   param("id").isMongoId().withMessage("Invalid ID format."),
-  validateRequest,
   async (req, res, next) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
-      const returnEntry = await getReturn(req.params.id);
+      const returnEntry = await getReturn(req.params!.id);
       res.json(returnEntry);
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
 
 returnRouter.post(
   "/",
-  body("salesId").isString().isLength({ min: 24, max: 24 }),
-  validateProducts,
+
+  body("products").isArray({ min: 1 }),
   body("status").isIn(["Pending", "Completed"]),
-  validateRequest,
+
   async (req, res, next) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
       const returnData = matchedData(req) as ReturnResource;
       const newReturn = await createReturn(returnData);
       res.status(201).json(newReturn);
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
@@ -88,20 +67,26 @@ returnRouter.post(
 returnRouter.put(
   "/:id",
   param("id").isMongoId().withMessage("Invalid ID format."),
-  body("salesId").optional().isString().isLength({ min: 24, max: 24 }),
-  validateProducts.optional(),
-  body("status").optional().isIn(["Pending", "Completed"]),
-  validateRequest,
+  body("products").isArray({ min: 1 }),
+  body("status").isIn(["Pending", "Completed"]),
+
   async (req, res, next) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
       const returnResource: ReturnResource = {
-        id: req.params.id,
+        id: req.params!.id,
         ...req.body,
       };
       const updatedReturn = await updateReturn(returnResource);
       res.json(updatedReturn);
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
@@ -109,13 +94,21 @@ returnRouter.put(
 returnRouter.delete(
   "/:id",
   param("id").isMongoId().withMessage("Invalid ID format."),
-  validateRequest,
+
   async (req, res, next) => {
+    const err = validationResult(req);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
+    }
     try {
-      await deleteReturn(req.params.id);
+      const id = req.params!.id;
+      await deleteReturn(id);
       res.status(204).end();
     } catch (err) {
-      next(err);
+      if (err instanceof Error) {
+        res.status(404).send({ error: err.message });
+        next(err);
+      }
     }
   }
 );
