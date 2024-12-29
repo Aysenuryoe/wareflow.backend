@@ -1,7 +1,5 @@
 import { model, Schema } from "mongoose";
 
-
-
 export interface IProduct {
   name: string;
   size: string;
@@ -27,8 +25,5 @@ export const ProductSchema = new Schema<IProduct>({
   minStock: { type: Number, default: 3 },
   description: { type: String}
 });
-
-
-
 
 export const Product = model<IProduct>("Product", ProductSchema);

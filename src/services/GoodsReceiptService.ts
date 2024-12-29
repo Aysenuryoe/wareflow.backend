@@ -2,7 +2,7 @@ import { GoodsReceipt } from "../models/GoodsReceiptModel";
 import { GoodsReceiptResource } from "../../src/Resources";
 import { updateStock } from "./StockService";
 import { Product } from "../models/ProductModel";
-import { InventoryMovement } from "src/models/IventoryMovementModel";
+import { InventoryMovement } from "../models/IventoryMovementModel";
 
 export async function getAllGoodsReceipts(): Promise<GoodsReceiptResource[]> {
   const goodsReceipts = await GoodsReceipt.find().exec();
@@ -70,6 +70,7 @@ export async function createGoodsReceipt(
   for (const item of goodsReceiptResource.products) {
     const inventoryMovement = new InventoryMovement({
       productId: item.productId,
+      name: item.name,
       type: "Inbound",
       quantity: item.receivedQuantity,
       date: goodsReceipt.receivedDate,
@@ -81,7 +82,7 @@ export async function createGoodsReceipt(
   }
 
   return {
-    id: goodsReceipt._id.toString(),
+    id: goodsReceipt.id.toString(),
     purchaseOrderId: goodsReceipt.purchaseOrderId.toString(),
     products: goodsReceipt.products.map((product) => ({
       productId: product.productId.toString(),

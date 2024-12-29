@@ -2,7 +2,7 @@ import { Product } from "../models/ProductModel";
 import { Return } from "../models/ReturnModel";
 import { ReturnResource } from "src/Resources";
 import { updateStock } from "./StockService";
-import { InventoryMovement } from "src/models/IventoryMovementModel";
+import { InventoryMovement } from "../models/IventoryMovementModel";
 
 export async function getAllReturns(): Promise<ReturnResource[]> {
   const returns = await Return.find().exec();
@@ -12,6 +12,7 @@ export async function getAllReturns(): Promise<ReturnResource[]> {
 
     products: returnEntry.products.map((item) => ({
       productId: item.productId.toString(),
+      name: item.name,
       quantity: item.quantity,
       reason: item.reason,
     })),
@@ -30,6 +31,7 @@ export async function getReturn(id: string): Promise<ReturnResource> {
     id: returnEntry._id.toString(),
     products: returnEntry.products.map((item) => ({
       productId: item.productId.toString(),
+      name: item.name,
       quantity: item.quantity,
       reason: item.reason,
     })),
@@ -44,6 +46,7 @@ export async function createReturn(
   const returnEntry = await Return.create({
     products: returnResource.products.map((item) => ({
       productId: item.productId,
+      name: item.name,
       quantity: item.quantity,
       reason: item.reason,
     })),
@@ -55,6 +58,7 @@ export async function createReturn(
     await updateStock(item.productId, item.quantity);
     const inventoryMovement = new InventoryMovement({
       productId: item.productId,
+      name: item.name,
       type: "Return",
       quantity: item.quantity,
       date: returnEntry.createdAt,
@@ -68,6 +72,7 @@ export async function createReturn(
     id: returnEntry._id.toString(),
     products: returnEntry.products.map((item) => ({
       productId: item.productId.toString(),
+      name: item.name,
       quantity: item.quantity,
       reason: item.reason,
     })),
@@ -86,6 +91,7 @@ export async function updateReturn(
     const updateObject: Partial<{
       products: {
         productId: string;
+        name: string;
         quantity: number;
         reason: string;
       }[];
@@ -96,6 +102,7 @@ export async function updateReturn(
     if (returnResource.products) {
       updateObject.products = returnResource.products.map((item) => ({
         productId: item.productId,
+        name: item.name,
         quantity: item.quantity,
         reason: item.reason,
       }));
@@ -122,6 +129,7 @@ export async function updateReturn(
 
       products: updatedReturn.products.map((item) => ({
         productId: item.productId.toString(),
+        name: item.name,
         quantity: item.quantity,
         reason: item.reason,
       })),

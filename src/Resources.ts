@@ -40,6 +40,7 @@ export type SalesOrderResource = {
 export type InventoryMovementResource = {
   id?: string;
   productId: string;
+  name: string;
   type: "Inbound" | "Outbound" | "Return" | "Adjustment";
   quantity: number;
   date: Date;
@@ -66,6 +67,7 @@ export type ReturnResource = {
   id?: string;
   products: {
       productId: string;
+      name: string;
       quantity: number;
       reason: string;
     }[];

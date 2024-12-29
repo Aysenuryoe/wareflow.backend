@@ -10,6 +10,7 @@ import {
   getSaleOrder,
   updateSale,
 } from "../services/SalesOrderService";
+import { authentication } from "./authentication";
 
 const salesRouter = express.Router();
 
@@ -53,13 +54,10 @@ salesRouter.post(
   "/",
   body("products")
     .isArray({ min: 1 })
-    .withMessage("Products must be a non-empty array.")
-   ,
-   body("totalAmount"),
-   body("createdAt").optional(),
-
-  // authentication,
-  // authorizeRole(["a"]),
+    .withMessage("Products must be a non-empty array."),
+  body("totalAmount"),
+  body("createdAt").optional(),
+  //authentication,
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -83,10 +81,9 @@ salesRouter.put(
   param("id").isMongoId(),
   body("products")
     .isArray({ min: 1 })
-    .withMessage("Products must be a non-empty array.")
-   ,
-   body("totalAmount"),
-   body("createdAt").optional(),
+    .withMessage("Products must be a non-empty array."),
+  body("totalAmount"),
+  body("createdAt").optional(),
   // authentication,
   // authorizeRole(["a"]),
   async (req, res, next) => {

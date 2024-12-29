@@ -11,6 +11,7 @@ export async function getAllInventoryMovements(): Promise<
     inventoryMovements.map((movement) => ({
       id: movement._id.toString(),
       productId: movement.productId.toString(),
+      name: movement.name,
       type: movement.type,
       quantity: movement.quantity,
       date: movement.date,
@@ -29,6 +30,7 @@ export async function getInventoryMovement(
     return {
       id: inventoryMovement._id.toString(),
       productId: inventoryMovement.productId.toString(),
+      name: inventoryMovement.name,
       type: inventoryMovement.type,
       quantity: inventoryMovement.quantity,
       date: inventoryMovement.date,
@@ -59,6 +61,7 @@ export async function createInventoryMovement(
 
     const inventoryMovement = await InventoryMovement.create({
       productId: inventoryMovementResource.productId,
+      name: inventoryMovementResource.name,
       type: inventoryMovementResource.type,
       quantity: inventoryMovementResource.quantity,
       date: inventoryMovementResource.date,
@@ -67,6 +70,7 @@ export async function createInventoryMovement(
     return {
       id: inventoryMovement._id.toString(),
       productId: inventoryMovement.productId.toString(),
+      name: inventoryMovement.name,
       type: inventoryMovement.type,
       quantity: inventoryMovement.quantity,
       date: inventoryMovement.date,
@@ -116,6 +120,7 @@ export async function updateInventoryMovement(
     return {
       id: inventoryMovement!.id,
       productId: inventoryMovement!.productId.toString(),
+      name: inventoryMovement!.name,
       type: inventoryMovement!.type,
       quantity: inventoryMovement!.quantity,
       date: inventoryMovement!.date,

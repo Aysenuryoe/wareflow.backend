@@ -3,6 +3,7 @@ import mongoose, { model, Schema, Types } from "mongoose";
 export interface IReturn {
   products: {
     productId: Types.ObjectId;
+    name: string;
     quantity: number;
     reason: string;
   }[];
@@ -19,6 +20,7 @@ const ReturnSchema = new Schema<IReturn>({
         ref: "Product",
         required: true,
       },
+      name: {type: String},
       quantity: { type: Number, required: true, min: 1 },
       reason: { type: String, required: true },
     },

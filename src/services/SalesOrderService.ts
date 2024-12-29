@@ -1,8 +1,7 @@
 import { SalesOrder } from "../models/SalesOrderModel";
 import { SalesOrderResource } from "src/Resources";
 import { updateStock } from "./StockService";
-
-import { InventoryMovement } from "src/models/IventoryMovementModel";
+import { InventoryMovement } from "../models/IventoryMovementModel";
 
 export async function getAllSales(): Promise<SalesOrderResource[]> {
   let sales = await SalesOrder.find().exec();
@@ -58,6 +57,7 @@ export async function createSaleOrder(
     await updateStock(item.productId, -item.quantity);
     const inventoryMovement = new InventoryMovement({
       productId: item.productId,
+      name: item.name,
       type: "Outbound",
       quantity: item.quantity,
       date: sale.createdAt,
