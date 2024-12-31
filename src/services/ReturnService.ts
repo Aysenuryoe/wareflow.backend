@@ -62,10 +62,8 @@ export async function createReturn(
       type: "Return",
       quantity: item.quantity,
       date: returnEntry.createdAt,
-   
     });
     await inventoryMovement.save();
-
   }
 
   return {

@@ -41,7 +41,6 @@ export const PurchaseOrderSchema = new Schema<IPurchaseOrder>(
   { timestamps: true }
 );
 
-
 PurchaseOrderSchema.pre("save", function (next) {
   if (this.receivedDate) {
     this.status = "Arrived";

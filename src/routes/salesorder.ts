@@ -97,7 +97,6 @@ salesRouter.delete("/:id", param("id").isMongoId(), async (req, res, next) => {
   }
   try {
     const id = req.params!.id;
-    const salesOrder = await getSaleOrder(id);
 
     await deleteSalesOrder(id);
     res.status(204).end();

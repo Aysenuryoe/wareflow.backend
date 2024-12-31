@@ -1,6 +1,5 @@
 import mongoose, { model, Schema, Types } from "mongoose";
 
-
 export interface ISalesOrder {
   products: {
     productId: string;
@@ -21,7 +20,7 @@ const SalesOrderSchema = new Schema<ISalesOrder>(
           ref: "Product",
           required: true,
         },
-        name: { type: String},
+        name: { type: String },
         price: { type: Number, required: true, min: 1 },
         quantity: { type: Number, required: true, min: 1 },
       },
@@ -39,6 +38,5 @@ SalesOrderSchema.pre("save", function (next) {
   );
   next();
 });
-
 
 export const SalesOrder = model<ISalesOrder>("SalesOrder", SalesOrderSchema);

@@ -44,19 +44,22 @@ UserSchema.pre<Query<any, IUser>>("updateMany", async function () {
   }
 });
 
-UserSchema.method("isCorrectPassword", async function (password: string): Promise<boolean>  {
-  const user = await User.findById(this._id);
-  if (!user) {
-    const errorMsg = "User not found..";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
+UserSchema.method(
+  "isCorrectPassword",
+  async function (password: string): Promise<boolean> {
+    const user = await User.findById(this._id);
+    if (!user) {
+      const errorMsg = "User not found..";
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    if (this.isModified("password")) {
+      const errorMsg = "Password not saved.";
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    return compare(password, user.password);
   }
-  if (this.isModified("password")) {
-    const errorMsg = "Password not saved.";
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
-  }
-  return compare(password, user.password);
-});
+);
 
 export const User = model<IUser, UserModel>("User", UserSchema);

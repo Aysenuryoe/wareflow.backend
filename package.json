@@ -1,12 +1,10 @@
 {
-  "name": "we2.blatt06",
+  "name": "wareflow.backend",
   "version": "1.0.0",
-  "description": "Web Engineering 2, Blatt 06",
+  "description": "Wareflow Backend",
   "scripts": {
     "test": "cross-env JEST_JUNIT_SUITE_NAME={filename} JEST_JUNIT_CLASSNAME={filename} jest",
     "build": "tsc",
-    "clean": "rimraf dist coverage junit.xml abgabe.zip all.log",
-    "abgabe": "ziplocalgit zip -f abgabe_Blatt_06.zip",
     "start": "nodemon --watch \"src/**\" --ext \"ts,js\" --exec \"node --inspect --require ts-node/register src/index.ts\""
   },
   "author": "",
@@ -21,6 +19,7 @@
     "@types/node": "^20.2.1",
     "@types/set-cookie-parser": "^2.4.2",
     "@types/supertest": "^2.0.12",
+    "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.12",
     "bestzip": "^2.2.1",
     "cookie": "^0.5.0",

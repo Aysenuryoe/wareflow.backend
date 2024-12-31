@@ -11,17 +11,20 @@ export interface IComplaint {
 }
 
 const ComplaintSchema = new Schema<IComplaint>({
-
   referenceType: {
     type: String,
     enum: ["GoodsReceipt", "Sales"],
     required: true,
-  }, 
+  },
   products: [
     {
-      productId: { type: Schema.Types.ObjectId, ref: "Product", required: true }, 
-      quantity: { type: Number, required: true, min: 1 }, 
-      reason: { type: String, required: true }, 
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+      quantity: { type: Number, required: true, min: 1 },
+      reason: { type: String, required: true },
     },
   ],
   status: { type: String, enum: ["Open", "Resolved"], default: "Open" },

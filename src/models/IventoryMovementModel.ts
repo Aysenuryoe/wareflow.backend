@@ -12,10 +12,10 @@ const InventoryMovementSchema = new Schema<IInventoryMovement>({
   productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
   type: {
     type: String,
-    enum: ["Inbound", "Outbound", "Return", "Adjustment"], 
+    enum: ["Inbound", "Outbound", "Return", "Adjustment"],
     required: true,
   },
-  name: { type: String},
+  name: { type: String },
   quantity: { type: Number, required: true },
   date: { type: Date, default: Date.now },
 });

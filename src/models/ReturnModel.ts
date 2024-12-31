@@ -20,7 +20,7 @@ const ReturnSchema = new Schema<IReturn>({
         ref: "Product",
         required: true,
       },
-      name: {type: String},
+      name: { type: String },
       quantity: { type: Number, required: true, min: 1 },
       reason: { type: String, required: true },
     },

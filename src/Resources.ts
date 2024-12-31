@@ -3,8 +3,8 @@ export type ProductResource = {
   name: string;
   size: string;
   price: number;
-  color: string,
-  sku?: string,
+  color: string;
+  sku?: string;
   stock: number;
   minStock?: number;
   description?: string;
@@ -22,7 +22,6 @@ export type PurchaseOrderResource = {
   status: "Ordered" | "Pending" | "Arrived" | "Cancelled";
   orderDate: Date;
   receivedDate?: Date;
-
 };
 
 export type SalesOrderResource = {
@@ -62,34 +61,33 @@ export type LoginResource = {
   tokenType: "Bearer";
 };
 
-
 export type ReturnResource = {
   id?: string;
   products: {
-      productId: string;
-      name: string;
-      quantity: number;
-      reason: string;
-    }[];
-    
+    productId: string;
+    name: string;
+    quantity: number;
+    reason: string;
+  }[];
+
   status: string;
-  createdAt?: Date
+  createdAt?: Date;
 };
 
 export type GoodsReceiptResource = {
   id?: string;
-  purchaseOrderId: string; 
+  purchaseOrderId: string;
   products: {
     productId: string;
     name: string;
     size: string;
-    receivedQuantity: number; 
-    discrepancies?: string; 
+    receivedQuantity: number;
+    discrepancies?: string;
   }[];
-  receivedDate: Date; 
-  status: "Pending" | "Completed" | "Partial"; 
+  receivedDate: Date;
+  status: "Pending" | "Completed" | "Partial";
   remarks?: string;
-}
+};
 
 export type ComplaintsResource = {
   id?: string;
@@ -100,4 +98,4 @@ export type ComplaintsResource = {
     reason: string;
   }[];
   status: "Open" | "Resolved";
-}
+};

@@ -4,18 +4,17 @@ import { v4 as uuidv4 } from "uuid";
 export async function getAllProducts(): Promise<ProductResource[]> {
   let products = await Product.find().exec();
 
-    return products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      size: product.size,
-      price: product.price,
-      color: product.color,
-      sku: product.sku,
-      stock: product.stock,
-      minStock: product.minStock,
-      description: product.description,
-    }));
-  
+  return products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    size: product.size,
+    price: product.price,
+    color: product.color,
+    sku: product.sku,
+    stock: product.stock,
+    minStock: product.minStock,
+    description: product.description,
+  }));
 }
 
 export async function getProduct(id: string): Promise<ProductResource> {
@@ -75,12 +74,13 @@ export async function createProduct(
   }
 }
 
-
-export async function updateProduct(productResource: ProductResource):Promise<ProductResource> {
+export async function updateProduct(
+  productResource: ProductResource
+): Promise<ProductResource> {
   let product = await Product.findById(productResource.id);
   if (!product) {
     throw new Error("Product not found.");
-  } else{
+  } else {
     const updateObject: {
       name?: string;
       size?: string;
@@ -113,12 +113,15 @@ export async function updateProduct(productResource: ProductResource):Promise<Pr
       updateObject.description = productResource.description;
     }
 
-    await Product.updateOne({
-      _id: productResource.id
-    }, updateObject);
+    await Product.updateOne(
+      {
+        _id: productResource.id,
+      },
+      updateObject
+    );
     product = await Product.findById(productResource.id);
 
-    return{
+    return {
       id: product!.id,
       name: product!.name,
       size: product!.size,
@@ -126,16 +129,16 @@ export async function updateProduct(productResource: ProductResource):Promise<Pr
       color: product!.color,
       stock: product!.stock,
       minStock: product!.minStock,
-      description: product!.description
-    }
+      description: product!.description,
+    };
   }
-};
+}
 
 export async function deleteProduct(id: string): Promise<void> {
   let product = await Product.findById(id);
   if (!product) {
     throw new Error("Product not found.");
   } else {
-    await Product.deleteOne({_id: id});
+    await Product.deleteOne({ _id: id });
   }
 }
