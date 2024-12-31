@@ -14,7 +14,6 @@ Das Backend basiert auf **Node.js** und **TypeScript** und nutzt **MongoDB** als
 - Verkaufsaufträge (Sales Orders)
 - Inventarbewegungen (z. B. Zu-/Abgänge, Retouren, Retourenbuchungen)
 - Retouren-Management (z. B. beschädigte Ware, Kundenrücksendungen)
-- Verwaltung von Benutzern (inkl. Rollen und Rechten, sofern erweitert)
 - Einfache Authentifizierung über JWT
 
 Zielgruppe sind kleine Boutiquen, die auf möglichst einfache Art und Weise den Bestand und die Bestell- sowie Verkaufsprozesse verwalten möchten.
