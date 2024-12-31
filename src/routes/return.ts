@@ -42,7 +42,6 @@ returnRouter.get(
 
 returnRouter.post(
   "/",
-
   body("products").isArray({ min: 1 }),
   body("status").isIn(["Pending", "Completed"]),
 
@@ -69,7 +68,6 @@ returnRouter.put(
   param("id").isMongoId().withMessage("Invalid ID format."),
   body("products").isArray({ min: 1 }),
   body("status").isIn(["Pending", "Completed"]),
-
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -94,7 +92,6 @@ returnRouter.put(
 returnRouter.delete(
   "/:id",
   param("id").isMongoId().withMessage("Invalid ID format."),
-
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {

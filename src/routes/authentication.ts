@@ -5,7 +5,6 @@ declare global {
   namespace Express {
     export interface Request {
       userId?: string;
-      role: "a" | "u";
     }
   }
 }
@@ -22,7 +21,6 @@ export async function authentication(
       if (jwtString) {
         const login = await verifyTokenExtractData(jwtString);
         req.userId = login.userId;
-        req.role = login.role;
         next();
       }
     } catch (error) {
@@ -53,7 +51,6 @@ export async function optionalAuthentication(
       if (jwtString) {
         const login = await verifyTokenExtractData(jwtString);
         req.userId = login.userId;
-        req.role = login.role;
         next();
       }
     } catch (error) {

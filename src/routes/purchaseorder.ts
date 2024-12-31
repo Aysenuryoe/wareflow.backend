@@ -8,15 +8,10 @@ import {
   updatePurchaseOrder,
 } from "../services/PurchaseOrderService";
 
-// import { authentication } from "../../src/routes/authentication";
-// import { authorizeRole } from "../../src/middleware/roleMiddleware";
-
 const purchaseRouter = express.Router();
 
 purchaseRouter.get(
   "/all",
-  // authentication,
-  // authorizeRole(["a", "u"]),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const purchaseOrders = await getAllPurchaseOrders();
@@ -33,8 +28,6 @@ purchaseRouter.get(
 purchaseRouter.get(
   "/:id",
   param("id").isMongoId(),
-  // authentication,
-  // authorizeRole(["a", "u"]),
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -82,8 +75,6 @@ purchaseRouter.post(
   body("status").isIn(["Ordered", "Pending", "Arrived", "Cancelled"]),
   body("orderDate").isISO8601(),
   body("receivedDate").optional().isISO8601(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -132,8 +123,6 @@ purchaseRouter.put(
   body("status").isIn(["Ordered", "Pending", "Arrived", "Cancelled"]),
   body("orderDate").isISO8601(),
   body("receivedDate").optional().isISO8601(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -160,8 +149,6 @@ purchaseRouter.put(
 purchaseRouter.delete(
   "/:id",
   param("id").isMongoId(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {

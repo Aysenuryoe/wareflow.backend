@@ -7,46 +7,33 @@ import {
   getProduct,
   updateProduct,
 } from "../services/ProductService";
-// import { authentication } from "../../src/routes/authentication";
-// import { authorizeRole } from "../../src/middleware/roleMiddleware";
 
 const productRouter = express.Router();
 
-productRouter.get(
-  "/all",
-  //  authentication,
-  //  authorizeRole(["a", "u"]),
-  async (req, res, next) => {
-    try {
-      const products = await getAllProducts();
-      res.json(products);
-    } catch (err) {
+productRouter.get("/all", async (req, res, next) => {
+  try {
+    const products = await getAllProducts();
+    res.json(products);
+  } catch (err) {
+    next(err);
+  }
+});
+
+productRouter.get("/:id", param("id").isMongoId(), async (req, res, next) => {
+  const err = validationResult(req);
+  if (!err.isEmpty()) {
+    return res.status(400).json({ errors: err.array() });
+  }
+  try {
+    const product = await getProduct(req.params!.id);
+    res.send(product);
+  } catch (err) {
+    if (err instanceof Error) {
+      res.status(404).send({ error: err.message });
       next(err);
     }
   }
-);
-
-productRouter.get(
-  "/:id",
-  param("id").isMongoId(),
-  // authentication,
-  // authorizeRole(["a", "u"]),
-  async (req, res, next) => {
-    const err = validationResult(req);
-    if (!err.isEmpty()) {
-      return res.status(400).json({ errors: err.array() });
-    }
-    try {
-      const product = await getProduct(req.params!.id);
-      res.send(product);
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(404).send({ error: err.message });
-        next(err);
-      }
-    }
-  }
-);
+});
 
 productRouter.post(
   "/",
@@ -73,8 +60,6 @@ productRouter.post(
   body("color").isString(),
   body("stock").isInt({ min: 0 }),
   body("minStock").optional().isFloat(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -117,11 +102,8 @@ productRouter.put(
     ]),
   body("price").isFloat({ min: 1 }),
   body("color").isString(),
-
   body("stock").isInt({ min: 0 }),
   body("minStock").optional().isFloat(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -146,8 +128,6 @@ productRouter.put(
 productRouter.delete(
   "/:id",
   param("id").isMongoId(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {

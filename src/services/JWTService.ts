@@ -1,8 +1,8 @@
 import { JwtPayload, sign, verify } from "jsonwebtoken";
 import { logger } from "../../src/logger";
 import { User } from "../models/UserModel";
-import dotenv from "dotenv"
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 
 const timeToLive = parseInt(process.env.JWT_TTL ?? "");
 const secretKey = process.env.JWT_SECRET ?? "";
@@ -27,7 +27,6 @@ export async function verifyCredentialsGenerateToken(
   }
   const payload: JwtPayload = {
     sub: user?.id,
-    role: user?.admin ? "a" : "u",
   };
   const jwtString = sign(payload, secretKey, {
     expiresIn: timeToLive,
@@ -38,11 +37,11 @@ export async function verifyCredentialsGenerateToken(
 
 export async function verifyTokenExtractData(
   jwtString: string | undefined
-): Promise<{ userId: string; role: "u" | "a" }> {
-  if (!secretKey|| !jwtString) {
+): Promise<{ userId: string }> {
+  if (!secretKey || !jwtString) {
     const errorMsg = "Failed to verify JWT";
     logger.error(errorMsg);
-    throw new Error(errorMsg)
+    throw new Error(errorMsg);
   }
 
   try {
@@ -53,12 +52,8 @@ export async function verifyTokenExtractData(
       logger.error(errMsg);
       throw new Error(errMsg);
     }
-    if (role !== "u" && role !== "a") {
-      const errMsg = "Invalid JWT";
-      logger.error(errMsg);
-      throw new Error(errMsg);
-    }
-    return { userId: sub, role };
+
+    return { userId: sub };
   } catch (error) {
     const errMsg = "Invalid JWT";
     logger.error(errMsg);

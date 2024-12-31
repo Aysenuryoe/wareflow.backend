@@ -45,7 +45,6 @@ complaintRouter.get(
 
 complaintRouter.post(
   "/",
-
   body("referenceType").isIn(["GoodsReceipt", "Sales"]),
   body("products").isArray(),
   body("status").isIn(["Open", "Resolved"]),
@@ -97,7 +96,6 @@ complaintRouter.put(
 complaintRouter.delete(
   "/:id",
   param("id").isMongoId().withMessage("Invalid ID format."),
-
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {

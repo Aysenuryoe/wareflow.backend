@@ -26,7 +26,6 @@ goodsReceiptRouter.get("/all", async (req, res, next) => {
 goodsReceiptRouter.get(
   "/:id",
   param("id").isMongoId(),
-
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -54,7 +53,6 @@ goodsReceiptRouter.post(
   body("receivedDate").isISO8601(),
   body("status").isIn(["Pending", "Completed", "Partial"]),
   body("remarks").optional().isString(),
-
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -85,7 +83,6 @@ goodsReceiptRouter.put(
   body("receivedDate").optional().isISO8601(),
   body("status").optional().isIn(["Pending", "Completed", "Partial"]),
   body("remarks").optional().isString(),
-
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -110,7 +107,6 @@ goodsReceiptRouter.put(
 goodsReceiptRouter.delete(
   "/:id",
   param("id").isMongoId(),
-
   async (req: Request, res: Response, next: NextFunction) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {

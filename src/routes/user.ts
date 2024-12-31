@@ -8,48 +8,30 @@ import {
   deleteUser,
 } from "../services/UserService";
 import { UserResource } from "../../src/Resources";
-// import { authentication } from "../../src/routes/authentication";
-// import { authorizeRole } from "../../src/middleware/roleMiddleware";
 import { User } from "../../src/models/UserModel";
 
 const userRouter = express.Router();
 
-userRouter.get(
-  "/all",
-  // authentication,
-  // authorizeRole(["a"]),
-  async (req, res, next) => {
-    const users = await getAllUsers();
-    res.status(200).json(users);
-  }
-);
+userRouter.get("/all", async (req, res, next) => {
+  const users = await getAllUsers();
+  res.status(200).json(users);
+});
 
-userRouter.get(
-  "/:id",
-  param("id").isMongoId(),
-  // authentication,
-  // authorizeRole(["a", "u"]),
-  async (req, res, next) => {
-    const err = validationResult(req);
-    if (!err.isEmpty()) {
-      return res.status(400).json({ errors: err.array() });
-    }
-    try {
-      const user = await getUser(req.params!.id);
-      // if (req.role === "u" && req.userId !== user.id) {
-      //   return res.status(403).json({
-      //     message: "Access forbidden: You can only view your own profile.",
-      //   });
-      // }
-      res.status(200).json(user);
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(404).send({ error: err.message });
-        next(err);
-      }
+userRouter.get("/:id", param("id").isMongoId(), async (req, res, next) => {
+  const err = validationResult(req);
+  if (!err.isEmpty()) {
+    return res.status(400).json({ errors: err.array() });
+  }
+  try {
+    const user = await getUser(req.params!.id);
+    res.status(200).json(user);
+  } catch (err) {
+    if (err instanceof Error) {
+      res.status(404).send({ error: err.message });
+      next(err);
     }
   }
-);
+});
 
 userRouter.post(
   "/",
@@ -66,8 +48,6 @@ userRouter.post(
     .isLength({ min: 1, max: 100 }),
   body("password").isString().isStrongPassword().isLength({ min: 8, max: 100 }),
   body("admin").isBoolean(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -77,7 +57,7 @@ userRouter.post(
       const userData = matchedData(req) as UserResource;
       const user = await createUser(userData);
       res.status(201).send(user);
-    }  catch (err) {
+    } catch (err) {
       if (err instanceof Error) {
         res.status(404).send({ error: err.message });
         next(err);
@@ -121,8 +101,6 @@ userRouter.put(
     .isStrongPassword()
     .isLength({ min: 1, max: 100 })
     .optional(),
-  // authentication,
-  // authorizeRole(["a", "u"]),
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -133,10 +111,8 @@ userRouter.put(
         id: req.params!.id,
         ...req.body,
       };
-      // if (req.role === "a") {
-        const user = await updateUser(userResource);
-        res.send(user);
-     // }
+      const user = await updateUser(userResource);
+      res.send(user);
       res.sendStatus(403);
     } catch (err) {
       if (err instanceof Error) {
@@ -147,26 +123,20 @@ userRouter.put(
   }
 );
 
-userRouter.delete(
-  "/:id",
-  param("id").isMongoId(),
-  // authentication,
-  // authorizeRole(["a"]),
-  async (req, res, next) => {
-    const err = validationResult(req);
-    if (!err.isEmpty()) {
-      return res.status(400).json({ errors: err.array() });
-    }
-    try {
-      await deleteUser(req.params!.id);
-      res.status(204).end();
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(404).send({ error: err.message });
-        next(err);
-      }
+userRouter.delete("/:id", param("id").isMongoId(), async (req, res, next) => {
+  const err = validationResult(req);
+  if (!err.isEmpty()) {
+    return res.status(400).json({ errors: err.array() });
+  }
+  try {
+    await deleteUser(req.params!.id);
+    res.status(204).end();
+  } catch (err) {
+    if (err instanceof Error) {
+      res.status(404).send({ error: err.message });
+      next(err);
     }
   }
-);
+});
 
 export default userRouter;

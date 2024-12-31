@@ -8,34 +8,21 @@ import {
   getInventoryMovement,
   updateInventoryMovement,
 } from "../services/InventoryMovementService";
-// import { authentication } from "../../src/routes/authentication";
-// import { authorizeRole } from "../../src/middleware/roleMiddleware";
-
-/*
-authorize/authentication kommis aus & bei req.param ! entfernen
-*/
 
 const inventoryMovementRouter = express.Router();
 
-inventoryMovementRouter.get(
-  "/all",
-  // authentication,
-  // authorizeRole(["a", "u"]),
-  async (req, res, next) => {
-    try {
-      const inventories = await getAllInventoryMovements();
-      res.send(inventories);
-    } catch (err) {
-      next(err);
-    }
+inventoryMovementRouter.get("/all", async (req, res, next) => {
+  try {
+    const inventories = await getAllInventoryMovements();
+    res.send(inventories);
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 inventoryMovementRouter.get(
   "/:id",
   param("id").isMongoId(),
-  // authentication,
-  // authorizeRole(["a", "u"]),
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -53,17 +40,12 @@ inventoryMovementRouter.get(
   }
 );
 
-
 inventoryMovementRouter.post(
   "/",
   body("productId").isString(),
-  body("type")
-    .isString()
-    .isIn(["Inbound", "Outbound", "Return", "Adjustment"]),
+  body("type").isString().isIn(["Inbound", "Outbound", "Return", "Adjustment"]),
   body("quantity").isFloat({ min: 1 }),
   body("date").isISO8601(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -72,7 +54,7 @@ inventoryMovementRouter.post(
     try {
       const inventoryData = matchedData(req) as InventoryMovementResource;
       const newInventory = await createInventoryMovement(inventoryData);
-      
+
       res.status(201).send(newInventory);
     } catch (err) {
       if (err instanceof Error) {
@@ -87,13 +69,9 @@ inventoryMovementRouter.put(
   "/:id",
   param("id").isMongoId(),
   body("productId").isString(),
-  body("type")
-    .isString()
-    .isIn(["Inbound", "Outbound", "Return", "Adjustment"]),
+  body("type").isString().isIn(["Inbound", "Outbound", "Return", "Adjustment"]),
   body("quantity").isFloat({ min: 1 }),
   body("date").isISO8601(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
@@ -118,8 +96,6 @@ inventoryMovementRouter.put(
 inventoryMovementRouter.delete(
   "/:id",
   param("id").isMongoId(),
-  // authentication,
-  // authorizeRole(["a"]),
   async (req, res, next) => {
     const err = validationResult(req);
     if (!err.isEmpty()) {
