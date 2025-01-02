@@ -9,7 +9,6 @@ export async function getAllPurchaseOrders(): Promise<PurchaseOrderResource[]> {
       id: purchase.id,
       products: purchase.products.map((item) => ({
         productId: item.productId,
-        name: item.name,
         size: item.size,
         quantity: item.quantity,
       })),
@@ -33,7 +32,6 @@ export async function getPurchaseOrder(
       id: purchase.id,
       products: purchase.products.map((item) => ({
         productId: item.productId.toString(),
-        name: item.name,
         size: item.size,
         quantity: item.quantity,
       })),
@@ -51,7 +49,6 @@ export async function createPurchaseOrder(
   let purchase = await PurchaseOrder.create({
     products: purchaseOrderResource.products.map((item) => ({
       productId: item.productId,
-      name: item.name,
       size: item.size,
       quantity: item.quantity,
     })),
@@ -65,7 +62,6 @@ export async function createPurchaseOrder(
     id: purchase.id,
     products: purchase.products.map((item) => ({
       productId: item.productId,
-      name: item.name,
       size: item.size,
       quantity: item.quantity,
     })),
@@ -87,7 +83,6 @@ export async function updatePurchaseOrder(
     const updateObject: {
       products?: {
         productId: string;
-        name: string;
         size: string;
         quantity: number;
       }[];
@@ -100,7 +95,6 @@ export async function updatePurchaseOrder(
     if (purchaseOrderResource.products) {
       updateObject.products = purchaseOrderResource.products.map((item) => ({
         productId: item.productId,
-        name: item.name,
         size: item.size,
         quantity: item.quantity,
       }));
@@ -132,7 +126,6 @@ export async function updatePurchaseOrder(
       id: purchase!.id,
       products: purchase!.products.map((item) => ({
         productId: item.productId.toString(),
-        name: item.name,
         size: item.size,
         quantity: item.quantity,
       })),

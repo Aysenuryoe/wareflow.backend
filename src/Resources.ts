@@ -14,7 +14,6 @@ export type PurchaseOrderResource = {
   id?: string;
   products: {
     productId: string;
-    name: string;
     size: string;
     quantity: number;
   }[];

@@ -128,6 +128,7 @@ export async function updateProduct(
       price: product!.price,
       color: product!.color,
       stock: product!.stock,
+      sku: product!.sku,
       minStock: product!.minStock,
       description: product!.description,
     };
